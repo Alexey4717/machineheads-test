@@ -1,10 +1,11 @@
-import { ConnectedRouter } from 'connected-react-router';
-import { Spin } from 'antd';
 import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 import { Provider } from 'react-redux';
 
-import { configureStore, history } from '@/app/store/configureStore';
+import { Spin } from 'antd';
+import { ConnectedRouter } from 'connected-react-router';
+
+import { configureStore, history } from '../store/configureStore';
 
 const store = configureStore();
 

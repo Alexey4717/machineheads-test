@@ -6,7 +6,7 @@ export const serverConfig: UserConfig['server'] = {
   open: true,
   proxy: {
     '/api': {
-      target: 'http://rest-test.machineheads.ru',
+      target: 'https://rest-test.machineheads.ru',
       changeOrigin: true,
       rewrite: (path) => path.replace(/^\/api/, ''),
     },

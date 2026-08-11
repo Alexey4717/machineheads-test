@@ -15,9 +15,17 @@ export const buildConfig = (isBuild: boolean): UserConfig['build'] => ({
       assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
       codeSplitting: {
         groups: [
-          { name: 'antd', test: /\/node_modules\/antd\// },
+          {
+            name: 'antd',
+            test: /\/node_modules\/antd\//,
+            // antd > 500 kB — дробим, чтобы убрать warning и улучшить кэш
+            maxSize: 400_000,
+          },
           { name: 'antd-icons', test: /\/node_modules\/@ant-design\/icons\// },
-          { name: 'antd-cssinjs', test: /\/node_modules\/@ant-design\/cssinjs/ },
+          {
+            name: 'antd-cssinjs',
+            test: /\/node_modules\/@ant-design\/cssinjs/,
+          },
           { name: 'rc-components', test: /\/node_modules\/rc-[^/]+\// },
           { name: 'dayjs', test: /\/node_modules\/dayjs\// },
           {

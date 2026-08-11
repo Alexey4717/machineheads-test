@@ -1,22 +1,25 @@
-import { ConfigProvider, Layout, Typography } from 'antd';
+import { useState } from 'react';
 
-import { AppRouter } from '@/app/router/AppRouter';
+import { ConfigProvider } from 'antd';
 
-const { Header, Content } = Layout;
+import type { ThemeMode } from '@/core/ui/ThemeSwitch/ThemeSwitch';
+
+import { AppRouter } from './router/AppRouter';
+import { getThemeConfig, readStoredTheme, storeTheme } from './styles/theme';
 
 export function App() {
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() =>
+    readStoredTheme(),
+  );
+
+  const handleThemeChange = (mode: ThemeMode) => {
+    setThemeMode(mode);
+    storeTheme(mode);
+  };
+
   return (
-    <ConfigProvider>
-      <Layout style={{ minHeight: '100vh' }}>
-        <Header style={{ display: 'flex', alignItems: 'center' }}>
-          <Typography.Title level={4} style={{ color: '#fff', margin: 0 }}>
-            machineheads-test
-          </Typography.Title>
-        </Header>
-        <Content style={{ padding: 24 }}>
-          <AppRouter />
-        </Content>
-      </Layout>
+    <ConfigProvider theme={getThemeConfig(themeMode)}>
+      <AppRouter themeMode={themeMode} onThemeChange={handleThemeChange} />
     </ConfigProvider>
   );
 }

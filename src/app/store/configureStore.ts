@@ -1,17 +1,30 @@
+import { push } from 'connected-react-router';
 import { createStore } from 'redux-dynamic-modules';
 import { getSagaExtension } from 'redux-dynamic-modules-saga';
 
-import { getRootModule } from './rootModule';
+import { setSessionExpiredHandler } from '@/core/api/sessionEvents';
+import { PATHS } from '@/core/config/router/paths';
+
+import { authActions } from '@/modules/auth';
+
+import { getInitialModules } from './rootModule';
 import type { AppStore, RootState } from './types';
 
 export { history } from './history';
 
 export function configureStore(): AppStore {
-  return createStore<RootState>(
+  const store = createStore<RootState>(
     {
       initialState: {},
       extensions: [getSagaExtension()],
     },
-    getRootModule(),
+    ...getInitialModules(),
   );
+
+  setSessionExpiredHandler(() => {
+    store.dispatch(authActions.sessionExpired());
+    store.dispatch(push(PATHS.LOGIN));
+  });
+
+  return store;
 }
