@@ -1,17 +1,16 @@
-import { PATHS, type AppPath } from './paths';
+import { type AppPath, PATHS } from './paths';
 
 type ExtractPathParams<T extends string> =
-  T extends `${infer _Prefix}:${infer Param}/${infer Rest}`
+  T extends `${string}:${infer Param}/${infer Rest}`
     ? { [K in Param | keyof ExtractPathParams<Rest>]: string | number }
-    : T extends `${infer _Prefix}:${infer Param}`
+    : T extends `${string}:${infer Param}`
       ? { [K in Param]: string | number }
       : // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- empty params for static paths
         {};
 
-type GetPathParams<T extends string> =
-  keyof ExtractPathParams<T> extends never
-    ? [path: T]
-    : [path: T, params: ExtractPathParams<T>];
+type GetPathParams<T extends string> = keyof ExtractPathParams<T> extends never
+  ? [path: T]
+  : [path: T, params: ExtractPathParams<T>];
 
 type RouteBuilder = (args?: Record<string, string | number>) => string;
 

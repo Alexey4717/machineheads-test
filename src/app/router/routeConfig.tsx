@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react';
 
-import { type RouteName, PATHS } from '@/core/config/router/paths';
+import { PATHS, type RouteName } from '@/core/config/router/paths';
 
 import { LoginPageAsync, NotFoundPageAsync } from '@/modules/auth';
 import {
