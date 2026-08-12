@@ -22,8 +22,7 @@ describe('auth selectors', () => {
   });
 
   it('selectIsAuthenticated', () => {
-    // TODO(ci-gate): намеренно сломан для проверки стопа deploy — починить следующим коммитом
-    expect(selectIsAuthenticated(state)).toBe(false);
+    expect(selectIsAuthenticated(state)).toBe(true);
   });
 
   it('selectAuthIsSubmitting', () => {
