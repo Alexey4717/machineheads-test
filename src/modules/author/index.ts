@@ -1,4 +1,4 @@
 export { getAuthorModule } from './module';
-export { AuthorsPageAsync } from './pages/AuthorsPage/AuthorsPage.async';
-export { AuthorCreatePageAsync } from './pages/AuthorCreatePage/AuthorCreatePage.async';
-export { AuthorEditPageAsync } from './pages/AuthorEditPage/AuthorEditPage.async';
+export { AuthorsPageAsync } from './pages/AuthorsPage/ui/AuthorsPage.async';
+export { AuthorCreatePageAsync } from './pages/AuthorCreatePage/ui/AuthorCreatePage.async';
+export { AuthorEditPageAsync } from './pages/AuthorEditPage/ui/AuthorEditPage.async';

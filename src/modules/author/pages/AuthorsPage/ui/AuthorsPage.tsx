@@ -3,7 +3,7 @@ import { Typography } from 'antd';
 import { DynamicModuleLoader } from '@/core/lib/DynamicModuleLoader';
 import { Page } from '@/core/ui/Page/Page';
 
-import { getAuthorModule } from '../../module';
+import { getAuthorModule } from '../../../module';
 
 export default function AuthorsPage() {
   return (

@@ -33,6 +33,11 @@ pnpm dev — запуск frontend в dev режиме
 - `modules` — домены `auth`, `post`, `author`, `tag` (api, model, features, pages, module.ts)
 - `core` — общий слой (axios, cookies, ui, config)
 
+Внутри `features/` и `pages/` у каждой сущности разделы:
+
+- `ui/` — только TSX (компоненты, `*.async.tsx`) и стили `*.styles.ts`
+- `lib/` — утилиты, хуки, константы, локальные типы, схемы валидации форм (`*.rules.ts`); папку создаём, когда есть не-UI код
+
 Правила импортов (зависимости только вниз):
 
 - `core` — не импортирует из `app` и `modules`
@@ -43,7 +48,7 @@ pnpm dev — запуск frontend в dev режиме
 
 Эти правила импортов проверяет ESLint (`eslint-plugin-boundaries` + `no-restricted-imports` в `eslint.config.js`).
 
-Страницы экспортируются лениво через `*.async.tsx` (`React.lazy`). Redux-модули подключаются через `redux-dynamic-modules`.
+Страницы экспортируются лениво через `pages/.../ui/*.async.tsx` (`React.lazy`). Redux-модули подключаются через `redux-dynamic-modules`.
 
 ---
 
@@ -55,6 +60,15 @@ css-in-js на `antd-style`, без CSS Modules и глобальных css (к�
 - В компоненте: `const { styles } = useStyles();` и `className={styles.xxx}`
 - Значения — из Design Tokens (`token.colorBgContainer`, `token.margin`, ...), инлайновый `style={{ ... }}` не используем
 - Light / dark тема — `ConfigProvider` + `algorithm` в `app/styles/theme.ts`; `token` в стилях подхватывает тему автоматически
+
+---
+
+## Формы и поля
+
+- Формы — Ant Design `Form` / `Form.useForm()` (без RHF/zod). Значения формы локально в antd; в Redux — submit/loading/ошибки сервера.
+- Валидация — фабрики в `src/core/lib/formRules.ts`; схемы фичи — в `features/<Feature>/lib/*.rules.ts`.
+- UI формы — в `features/<Feature>/ui/`; поля — самозакрывающийся `Field` (`src/core/ui/Field/Field.tsx`), `type` по умолчанию `text`.
+- Без `name` — controlled (`value`/`onChange`), например фильтры в Redux. Обязательны `testId` (`data-testid`) и `aria-label`, если нет видимого `label`.
 
 ---
 

@@ -3,13 +3,13 @@ import { Typography } from 'antd';
 import { DynamicModuleLoader } from '@/core/lib/DynamicModuleLoader';
 import { Page } from '@/core/ui/Page/Page';
 
-import { getTagModule } from '../../module';
+import { getTagModule } from '../../../module';
 
-export default function TagEditPage() {
+export default function TagsPage() {
   return (
     <DynamicModuleLoader modules={[getTagModule()]}>
-      <Page title="Редактирование тега">
-        <Typography.Text>Редактирование тега</Typography.Text>
+      <Page title="Теги">
+        <Typography.Text>Теги</Typography.Text>
       </Page>
     </DynamicModuleLoader>
   );

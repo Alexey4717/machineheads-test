@@ -2,7 +2,7 @@ import { Typography } from 'antd';
 
 import { Page } from '@/core/ui/Page/Page';
 
-import { LoginForm } from '../../features/LoginForm/LoginForm';
+import { LoginForm } from '../../../features/LoginForm/ui/LoginForm';
 
 export default function LoginPage() {
   return (

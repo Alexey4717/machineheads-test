@@ -3,13 +3,13 @@ import { Typography } from 'antd';
 import { DynamicModuleLoader } from '@/core/lib/DynamicModuleLoader';
 import { Page } from '@/core/ui/Page/Page';
 
-import { getPostModule } from '../../module';
+import { getPostModule } from '../../../module';
 
-export default function PostsPage() {
+export default function PostEditPage() {
   return (
     <DynamicModuleLoader modules={[getPostModule()]}>
-      <Page title="Посты">
-        <Typography.Text>Посты</Typography.Text>
+      <Page title="Редактирование поста">
+        <Typography.Text>Редактирование поста</Typography.Text>
       </Page>
     </DynamicModuleLoader>
   );

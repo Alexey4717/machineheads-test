@@ -3,13 +3,13 @@ import { Typography } from 'antd';
 import { DynamicModuleLoader } from '@/core/lib/DynamicModuleLoader';
 import { Page } from '@/core/ui/Page/Page';
 
-import { getAuthorModule } from '../../module';
+import { getAuthorModule } from '../../../module';
 
-export default function AuthorEditPage() {
+export default function AuthorCreatePage() {
   return (
     <DynamicModuleLoader modules={[getAuthorModule()]}>
-      <Page title="Редактирование автора">
-        <Typography.Text>Редактирование автора</Typography.Text>
+      <Page title="Создание автора">
+        <Typography.Text>Создание автора</Typography.Text>
       </Page>
     </DynamicModuleLoader>
   );

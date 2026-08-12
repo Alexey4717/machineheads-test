@@ -7,5 +7,5 @@ export {
   selectIsAuthenticated,
 } from './model/selectors';
 export type { AuthState, LoginCredentials } from './model/types';
-export { LoginPageAsync } from './pages/LoginPage/LoginPage.async';
-export { NotFoundPageAsync } from './pages/NotFoundPage/NotFoundPage.async';
+export { LoginPageAsync } from './pages/LoginPage/ui/LoginPage.async';
+export { NotFoundPageAsync } from './pages/NotFoundPage/ui/NotFoundPage.async';
