@@ -4,8 +4,10 @@ import { Result, Skeleton, Typography } from 'antd';
 
 import { useStyles } from './Page.styles';
 
+/** Статус ошибки для antd `Result` (HTTP-коды или общий `'error'`). */
 export type PageErrorStatus = 403 | 404 | 500 | 'error';
 
+/** Описание ошибки страницы для режима `Result`. */
 export interface PageError {
   status?: PageErrorStatus;
   title?: string;
@@ -16,15 +18,68 @@ export interface PageError {
 export interface PageProps {
   title: string;
   extra?: ReactNode;
+  actions?: ReactNode;
   loading?: boolean;
   skeleton?: ReactNode;
   error?: PageError | null;
   children?: ReactNode;
 }
 
+/**
+ * Оболочка страницы админки: шапка (заголовок + optional `extra`/`actions`) и контент
+ * либо полноэкранный antd `Result` при ошибке.
+ *
+ * **Layout без ошибки:**
+ * 1. Верхняя строка — `title` слева, опциональный `extra` справа.
+ * 2. Под ней — опциональный блок `actions`.
+ * 3. Ниже — при `loading` скелетон, иначе `children`.
+ *
+ * @param props.title - Заголовок страницы (`Typography.Title` level 3) слева в шапке.
+ * @param props.extra - Правая часть шапки в одной строке с заголовком (компактные элементы:
+ *   тема, ссылка, одиночная кнопка). Не для ряда кнопок управления — для них `actions`.
+ * @param props.actions - Панель действий под строкой заголовка (создать, фильтры и т.п.),
+ *   отдельная строка с flex-wrap.
+ * @param props.loading - Режим загрузки: вместо `children` показывается `skeleton`
+ *   или дефолтный `<Skeleton active />`. Шапка остаётся видимой. Игнорируется, если задан `error`.
+ * @param props.skeleton - Кастомный скелетон при `loading`; иначе antd `Skeleton` с `active`.
+ * @param props.error - Ошибка страницы. Если задано, вместо layout рендерится antd `Result`
+ *   (`status` / `title` / `subtitle` / `extra` из объекта; шапка и контент не показываются).
+ *   `null` или отсутствие prop — ошибки нет.
+ * @param props.children - Основной контент; только когда нет `error` и `loading === false`.
+ *
+ * @remarks
+ * **`extra` vs `actions`:** `extra` — в одной строке с заголовком справа;
+ * `actions` — отдельная строка под заголовком для кнопок и контролов страницы.
+ *
+ * @example
+ * ```tsx
+ * // Список с действиями
+ * <Page title="Посты" actions={<Button type="primary">Создать</Button>}>
+ *   <PostsTable />
+ * </Page>
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // Ошибка
+ * <Page
+ *   title="Пост"
+ *   error={{ status: 404, title: 'Не найдено', subtitle: 'Пост удалён или не существует' }}
+ * />
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // Загрузка
+ * <Page title="Авторы" loading>
+ *   <AuthorsTable />
+ * </Page>
+ * ```
+ */
 export const Page = ({
   title,
   extra,
+  actions,
   loading = false,
   skeleton,
   error,
@@ -45,11 +100,14 @@ export const Page = ({
 
   return (
     <div>
-      <div className={styles.header}>
-        <Typography.Title level={3} className={styles.title}>
-          {title}
-        </Typography.Title>
-        {extra}
+      <div className={styles.top}>
+        <div className={styles.header}>
+          <Typography.Title level={3} className={styles.title}>
+            {title}
+          </Typography.Title>
+          {extra}
+        </div>
+        {actions ? <div className={styles.actions}>{actions}</div> : null}
       </div>
 
       {loading ? (skeleton ?? <Skeleton active />) : children}

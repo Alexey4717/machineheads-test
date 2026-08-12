@@ -11,8 +11,11 @@ describe('getPath', () => {
 
   it('подставляет динамический :id', () => {
     expect(getPath(PATHS.POST_EDIT, { id: 42 })).toBe('/posts/42/edit');
+    expect(getPath(PATHS.POST_DETAIL, { id: 42 })).toBe('/posts/42');
     expect(getPath(PATHS.AUTHOR_EDIT, { id: '7' })).toBe('/authors/7/edit');
+    expect(getPath(PATHS.AUTHOR_DETAIL, { id: '7' })).toBe('/authors/7');
     expect(getPath(PATHS.TAG_EDIT, { id: 1 })).toBe('/tags/1/edit');
+    expect(getPath(PATHS.TAG_DETAIL, { id: 1 })).toBe('/tags/1');
   });
 
   it('бросает при отсутствии args для динамического пути', () => {

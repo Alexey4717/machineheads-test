@@ -11,14 +11,20 @@ export const PATHS = {
   HOME: '/',
   POSTS: '/posts',
   POST_CREATE: '/posts/new',
+  /** Карточка поста (`:id` — идентификатор). */
+  POST_DETAIL: '/posts/:id',
   /** Редактирование поста (`:id` — идентификатор). */
   POST_EDIT: '/posts/:id/edit',
   AUTHORS: '/authors',
   AUTHOR_CREATE: '/authors/new',
+  /** Карточка автора (`:id` — идентификатор). */
+  AUTHOR_DETAIL: '/authors/:id',
   /** Редактирование автора (`:id` — идентификатор). */
   AUTHOR_EDIT: '/authors/:id/edit',
   TAGS: '/tags',
   TAG_CREATE: '/tags/new',
+  /** Карточка тега (`:id` — идентификатор). */
+  TAG_DETAIL: '/tags/:id',
   /** Редактирование тега (`:id` — идентификатор). */
   TAG_EDIT: '/tags/:id/edit',
 } as const;

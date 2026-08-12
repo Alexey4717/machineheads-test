@@ -5,16 +5,19 @@ import { PATHS, type RouteName } from '@/core/config/router/paths';
 import { LoginPageAsync, NotFoundPageAsync } from '@/modules/auth';
 import {
   AuthorCreatePageAsync,
+  AuthorDetailPageAsync,
   AuthorEditPageAsync,
   AuthorsPageAsync,
 } from '@/modules/author';
 import {
   PostCreatePageAsync,
+  PostDetailPageAsync,
   PostEditPageAsync,
   PostsPageAsync,
 } from '@/modules/post';
 import {
   TagCreatePageAsync,
+  TagDetailPageAsync,
   TagEditPageAsync,
   TagsPageAsync,
 } from '@/modules/tag';
@@ -68,6 +71,13 @@ export const routeConfig: Record<RouteName, AppRouteProps> = {
     layout: 'admin',
     element: PostEditPageAsync,
   },
+  POST_DETAIL: {
+    path: PATHS.POST_DETAIL,
+    exact: true,
+    authOnly: true,
+    layout: 'admin',
+    element: PostDetailPageAsync,
+  },
   AUTHORS: {
     path: PATHS.AUTHORS,
     exact: true,
@@ -89,6 +99,13 @@ export const routeConfig: Record<RouteName, AppRouteProps> = {
     layout: 'admin',
     element: AuthorEditPageAsync,
   },
+  AUTHOR_DETAIL: {
+    path: PATHS.AUTHOR_DETAIL,
+    exact: true,
+    authOnly: true,
+    layout: 'admin',
+    element: AuthorDetailPageAsync,
+  },
   TAGS: {
     path: PATHS.TAGS,
     exact: true,
@@ -109,6 +126,13 @@ export const routeConfig: Record<RouteName, AppRouteProps> = {
     authOnly: true,
     layout: 'admin',
     element: TagEditPageAsync,
+  },
+  TAG_DETAIL: {
+    path: PATHS.TAG_DETAIL,
+    exact: true,
+    authOnly: true,
+    layout: 'admin',
+    element: TagDetailPageAsync,
   },
   notFound: {
     authOnly: true,
