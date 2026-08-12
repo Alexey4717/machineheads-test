@@ -45,8 +45,6 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
     env:
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       VITE_API_BASE_URL: /api
     steps:
       - uses: actions/checkout@v4
@@ -66,11 +64,69 @@ jobs:
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
 
+      - name: Normalize Vercel secrets
+        env:
+          RAW_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          RAW_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          RAW_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          trim() { printf '%s' "$1" | tr -d '\r\n"'\''[:space:]'; }
+          ORG_ID="$(trim "$RAW_ORG_ID")"
+          PROJECT_ID="$(trim "$RAW_PROJECT_ID")"
+          TOKEN="$(trim "$RAW_TOKEN")"
+
+          if [ -z "$ORG_ID" ] || [ -z "$PROJECT_ID" ] || [ -z "$TOKEN" ]; then
+            echo "One or more Vercel secrets are empty"
+            exit 1
+          fi
+
+          echo "ORG_ID prefix=${ORG_ID:0:5} len=${#ORG_ID}"
+          echo "PROJECT_ID prefix=${PROJECT_ID:0:4} len=${#PROJECT_ID}"
+          echo "TOKEN len=${#TOKEN}"
+
+          {
+            echo "VERCEL_ORG_ID=$ORG_ID"
+            echo "VERCEL_PROJECT_ID=$PROJECT_ID"
+            echo "VERCEL_TOKEN=$TOKEN"
+          } >> "$GITHUB_ENV"
+
+      - name: Diagnose Vercel access
+        run: |
+          set +e
+          echo "== vercel whoami =="
+          vercel whoami --token="$VERCEL_TOKEN"
+          WHOAMI_EXIT=$?
+
+          echo "== GET project with teamId =="
+          CODE_WITH_TEAM=$(curl -sS -o /tmp/vercel-project-team.json -w "%{http_code}" \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_ID}?teamId=${VERCEL_ORG_ID}")
+          echo "HTTP $CODE_WITH_TEAM"
+          head -c 500 /tmp/vercel-project-team.json; echo
+
+          echo "== GET project without teamId =="
+          CODE_NO_TEAM=$(curl -sS -o /tmp/vercel-project.json -w "%{http_code}" \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_ID}")
+          echo "HTTP $CODE_NO_TEAM"
+          head -c 500 /tmp/vercel-project.json; echo
+
+          if [ "$WHOAMI_EXIT" -ne 0 ] || { [ "$CODE_WITH_TEAM" != "200" ] && [ "$CODE_NO_TEAM" != "200" ]; }; then
+            echo "Vercel auth/project lookup failed. Check token scope and ORG/PROJECT IDs."
+            exit 1
+          fi
+
+      - name: Link Vercel project
+        run: |
+          mkdir -p .vercel
+          printf '{"orgId":"%s","projectId":"%s"}\n' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
+          cat .vercel/project.json
+
       - name: Pull Vercel Environment
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN" --scope="$VERCEL_ORG_ID"
 
       - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod --token="$VERCEL_TOKEN" --scope="$VERCEL_ORG_ID"
 
       - name: Deploy to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN" --scope="$VERCEL_ORG_ID"
