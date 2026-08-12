@@ -7,7 +7,7 @@ import {
   type AuthTokens,
   clearAuthTokens,
   setAuthTokens,
-} from '@/core/lib/cookies';
+} from '@/core/lib/cookies/cookies';
 
 import { loginRequest } from '../api/authApi';
 import {

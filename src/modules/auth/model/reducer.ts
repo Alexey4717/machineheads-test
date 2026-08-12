@@ -1,4 +1,4 @@
-import { hasAuthSession } from '@/core/lib/cookies';
+import { hasAuthSession } from '@/core/lib/cookies/cookies';
 
 import {
   AUTH_LOGIN_FAILURE,

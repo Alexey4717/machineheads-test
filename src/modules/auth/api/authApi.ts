@@ -1,5 +1,5 @@
 import { apiClient } from '@/core/api/apiClient';
-import type { AuthTokens } from '@/core/lib/cookies';
+import type { AuthTokens } from '@/core/lib/cookies/cookies';
 
 export interface LoginPayload {
   email: string;

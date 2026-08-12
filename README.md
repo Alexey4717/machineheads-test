@@ -21,7 +21,26 @@ pnpm dev — запуск frontend в dev режиме
 - `pnpm lint:fix` — ESLint с автофиксом
 - `pnpm format` — Prettier
 - `pnpm format:check` — проверка Prettier
+- `pnpm test` / `pnpm test:unit` — unit + integration (Vitest)
+- `pnpm test:watch` — Vitest в watch-режиме
 - `pnpm prepare` — husky hooks
+
+---
+
+## Тесты
+
+Стек: **Vitest** + Testing Library + `redux-saga-test-plan` (jsdom).
+
+Покрытие сейчас (существующий код):
+
+- Unit: `errorParsers`, cookies, `formRules`, `getPath`, sessionEvents, auth selectors/reducer, `loginRules`, `Field`, `LoginForm`
+- Integration: auth sagas (login success/failure, logout), apiClient interceptors (Bearer, 401 → logout)
+
+E2E (Playwright) и CRUD-сценарии — после реализации posts/authors/tags.
+
+```
+pnpm test
+```
 
 ---
 
@@ -66,7 +85,7 @@ css-in-js на `antd-style`, без CSS Modules и глобальных css (к�
 ## Формы и поля
 
 - Формы — Ant Design `Form` / `Form.useForm()` (без RHF/zod). Значения формы локально в antd; в Redux — submit/loading/ошибки сервера.
-- Валидация — фабрики в `src/core/lib/formRules.ts`; схемы фичи — в `features/<Feature>/lib/*.rules.ts`.
+- Валидация — фабрики в `src/core/lib/formRules/formRules.ts`; схемы фичи — в `features/<Feature>/lib/*.rules.ts`.
 - UI формы — в `features/<Feature>/ui/`; поля — самозакрывающийся `Field` (`src/core/ui/Field/Field.tsx`), `type` по умолчанию `text`.
 - Без `name` — controlled (`value`/`onChange`), например фильтры в Redux. Обязательны `testId` (`data-testid`) и `aria-label`, если нет видимого `label`.
 

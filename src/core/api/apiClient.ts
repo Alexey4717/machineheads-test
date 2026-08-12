@@ -7,7 +7,7 @@ import {
   getAccessToken,
   getRefreshToken,
   setAuthTokens,
-} from '../lib/cookies';
+} from '../lib/cookies/cookies';
 import { notifySessionExpired } from './sessionEvents';
 
 const AUTH_REFRESH_URL = '/auth/token-refresh';

@@ -11,7 +11,7 @@ import {
   selectAuthIsSubmitting,
 } from '../../../model/selectors';
 import type { LoginCredentials } from '../../../model/types';
-import { loginRules } from '../lib/LoginForm.rules';
+import { loginRules } from '../lib/form/LoginForm.rules';
 import { useStyles } from './LoginForm.styles';
 
 export const LoginForm = () => {
