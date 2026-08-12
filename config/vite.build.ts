@@ -8,29 +8,23 @@ export const buildConfig = (isBuild: boolean): UserConfig['build'] => ({
   emptyOutDir: true,
   minify: isBuild ? 'oxc' : false,
   reportCompressedSize: isBuild,
+  chunkSizeWarningLimit: 1000,
   rolldownOptions: {
     output: {
       entryFileNames: 'static/js/[name]-[hash].js',
       chunkFileNames: 'static/js/[name]-[hash].js',
       assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
+      // Без этого Vite 8/Rolldown при codeSplitting ломает init antd (белый экран в prod).
+      strictExecutionOrder: true,
       codeSplitting: {
         groups: [
           {
-            name: 'antd',
-            test: /\/node_modules\/antd\//,
-            // antd > 500 kB — дробим, чтобы убрать warning и улучшить кэш
-            maxSize: 400_000,
-          },
-          { name: 'antd-icons', test: /\/node_modules\/@ant-design\/icons\// },
-          {
-            name: 'antd-cssinjs',
-            test: /\/node_modules\/@ant-design\/cssinjs/,
-          },
-          { name: 'rc-components', test: /\/node_modules\/rc-[^/]+\// },
-          { name: 'dayjs', test: /\/node_modules\/dayjs\// },
-          {
             name: 'react-vendor',
             test: /\/node_modules\/(react|react-dom|scheduler)\//,
+          },
+          {
+            name: 'antd',
+            test: /\/node_modules\/(antd|@ant-design|@rc-component|rc-[^/]+|dayjs)\//,
           },
         ],
       },
