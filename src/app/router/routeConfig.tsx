@@ -111,7 +111,8 @@ export const routeConfig: Record<RouteName, AppRouteProps> = {
     element: TagEditPageAsync,
   },
   notFound: {
-    layout: 'none',
+    authOnly: true,
+    layout: 'admin',
     element: NotFoundPageAsync,
   },
 };
