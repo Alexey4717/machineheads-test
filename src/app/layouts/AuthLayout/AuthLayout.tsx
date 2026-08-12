@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
+import { Suspense } from 'react';
 
-import { Layout, Typography } from 'antd';
+import { Layout, Spin, Typography } from 'antd';
 
 import { useStyles } from './AuthLayout.styles';
 
@@ -19,7 +20,15 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         <Typography.Title level={2} className={styles.title}>
           Machineheads Admin
         </Typography.Title>
-        {children}
+        <Suspense
+          fallback={
+            <div className={styles.fallback}>
+              <Spin size="large" />
+            </div>
+          }
+        >
+          {children}
+        </Suspense>
       </Content>
     </Layout>
   );

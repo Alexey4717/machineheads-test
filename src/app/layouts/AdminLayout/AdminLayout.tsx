@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Suspense } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -8,7 +9,7 @@ import {
   TagsOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
-import { Button, Layout, Menu } from 'antd';
+import { Button, Layout, Menu, Spin } from 'antd';
 
 import { PATHS } from '@/core/config/router/paths';
 import { type ThemeMode, ThemeSwitch } from '@/core/ui/ThemeSwitch/ThemeSwitch';
@@ -77,7 +78,17 @@ export function AdminLayout({
             Выйти
           </Button>
         </Header>
-        <Content className={styles.content}>{children}</Content>
+        <Content className={styles.content}>
+          <Suspense
+            fallback={
+              <div className={styles.fallback}>
+                <Spin size="large" />
+              </div>
+            }
+          >
+            {children}
+          </Suspense>
+        </Content>
       </Layout>
     </Layout>
   );

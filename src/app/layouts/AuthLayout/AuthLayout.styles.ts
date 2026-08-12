@@ -14,4 +14,11 @@ export const useStyles = createStyles(({ token, css }) => ({
   title: css`
     margin-bottom: ${token.marginLG}px !important;
   `,
+  fallback: css`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 160px;
+    background: transparent;
+  `,
 }));

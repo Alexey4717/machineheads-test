@@ -26,4 +26,11 @@ export const useStyles = createStyles(({ token, css }) => ({
   content: css`
     margin: ${token.marginLG}px;
   `,
+  fallback: css`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 240px;
+    background: ${token.colorBgLayout};
+  `,
 }));
