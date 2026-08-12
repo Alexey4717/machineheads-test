@@ -62,7 +62,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Vercel CLI
-        run: npm i -g vercel@latest
+        run: npm i -g vercel@58.9.4
 
       - name: Normalize Vercel secrets
         env:
@@ -93,9 +93,8 @@ jobs:
       - name: Diagnose Vercel access
         run: |
           set +e
-          echo "== vercel whoami =="
-          vercel whoami --token="$VERCEL_TOKEN"
-          WHOAMI_EXIT=$?
+          echo "== vercel whoami (informational; may fail for some token types) =="
+          vercel whoami --token="$VERCEL_TOKEN" || true
 
           echo "== GET project with teamId =="
           CODE_WITH_TEAM=$(curl -sS -o /tmp/vercel-project-team.json -w "%{http_code}" \
@@ -111,8 +110,8 @@ jobs:
           echo "HTTP $CODE_NO_TEAM"
           head -c 500 /tmp/vercel-project.json; echo
 
-          if [ "$WHOAMI_EXIT" -ne 0 ] || { [ "$CODE_WITH_TEAM" != "200" ] && [ "$CODE_NO_TEAM" != "200" ]; }; then
-            echo "Vercel auth/project lookup failed. Check token scope and ORG/PROJECT IDs."
+          if [ "$CODE_WITH_TEAM" != "200" ] && [ "$CODE_NO_TEAM" != "200" ]; then
+            echo "Vercel project lookup failed. Check token scope and ORG/PROJECT IDs."
             exit 1
           fi
 
@@ -123,10 +122,10 @@ jobs:
           cat .vercel/project.json
 
       - name: Pull Vercel Environment
-        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN" --scope="$VERCEL_ORG_ID"
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
 
       - name: Build Project Artifacts
-        run: vercel build --prod --token="$VERCEL_TOKEN" --scope="$VERCEL_ORG_ID"
+        run: vercel build --prod --token="$VERCEL_TOKEN"
 
       - name: Deploy to Vercel
-        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN" --scope="$VERCEL_ORG_ID"
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
