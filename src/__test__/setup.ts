@@ -16,6 +16,17 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+Object.defineProperty(window, 'ResizeObserver', {
+  writable: true,
+  value: ResizeObserverStub,
+});
+
 afterEach(() => {
   cleanup();
 });

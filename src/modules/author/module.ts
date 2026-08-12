@@ -1,7 +1,8 @@
 import type { ISagaModule } from 'redux-dynamic-modules-saga';
 
-import { authorReducer, type AuthorState } from './model/reducer';
+import { authorReducer } from './model/reducer';
 import { authorSaga } from './model/sagas';
+import type { AuthorState } from './model/types';
 
 export function getAuthorModule(): ISagaModule<{ author: AuthorState }> {
   return {
