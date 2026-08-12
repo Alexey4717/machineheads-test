@@ -45,6 +45,17 @@ pnpm dev — запуск frontend в dev режиме
 
 ---
 
+## Стили
+
+css-in-js на `antd-style`, без CSS Modules и глобальных css (кроме `antd/dist/reset.css`).
+
+- Стили компонента — в `Component.styles.ts` рядом с компонентом: `createStyles(({ token, css }) => ({ ... }))`
+- В компоненте: `const { styles } = useStyles();` и `className={styles.xxx}`
+- Значения — из Design Tokens (`token.colorBgContainer`, `token.margin`, ...), инлайновый `style={{ ... }}` не используем
+- Light / dark тема — `ConfigProvider` + `algorithm` в `app/styles/theme.ts`; `token` в стилях подхватывает тему автоматически
+
+---
+
 ## API
 
 Базовый URL: `VITE_API_BASE_URL` (в dev обычно `/api`).

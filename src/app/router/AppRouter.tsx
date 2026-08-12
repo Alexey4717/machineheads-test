@@ -2,8 +2,8 @@ import { Route, Switch } from 'react-router-dom';
 
 import type { ThemeMode } from '@/core/ui/ThemeSwitch/ThemeSwitch';
 
-import { AdminLayout } from '../layouts/AdminLayout';
-import { AuthLayout } from '../layouts/AuthLayout';
+import { AdminLayout } from '../layouts/AdminLayout/AdminLayout';
+import { AuthLayout } from '../layouts/AuthLayout/AuthLayout';
 import { RequireAuth, RequireGuest } from './guards';
 import { type AppRouteProps, routeConfig } from './routeConfig';
 

@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 
 import { Layout, Typography } from 'antd';
 
+import { useStyles } from './AuthLayout.styles';
+
 const { Content } = Layout;
 
 interface AuthLayoutProps {
@@ -9,18 +11,12 @@ interface AuthLayoutProps {
 }
 
 export function AuthLayout({ children }: AuthLayoutProps) {
+  const { styles } = useStyles();
+
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Content
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 24,
-        }}
-      >
-        <Typography.Title level={2} style={{ marginBottom: 24 }}>
+    <Layout className={styles.layout}>
+      <Content className={styles.content}>
+        <Typography.Title level={2} className={styles.title}>
           Machineheads Admin
         </Typography.Title>
         {children}

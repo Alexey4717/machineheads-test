@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 
 import { Result, Skeleton, Typography } from 'antd';
 
+import { useStyles } from './Page.styles';
+
 export type PageErrorStatus = 403 | 404 | 500 | 'error';
 
 export interface PageError {
@@ -28,6 +30,8 @@ export function Page({
   error,
   children,
 }: PageProps) {
+  const { styles } = useStyles();
+
   if (error) {
     return (
       <Result
@@ -41,16 +45,8 @@ export function Page({
 
   return (
     <div>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 16,
-          marginBottom: 16,
-        }}
-      >
-        <Typography.Title level={3} style={{ margin: 0 }}>
+      <div className={styles.header}>
+        <Typography.Title level={3} className={styles.title}>
           {title}
         </Typography.Title>
         {extra}

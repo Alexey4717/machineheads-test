@@ -8,12 +8,14 @@ import {
   TagsOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
-import { Button, Layout, Menu, theme } from 'antd';
+import { Button, Layout, Menu } from 'antd';
 
 import { PATHS } from '@/core/config/router/paths';
 import { type ThemeMode, ThemeSwitch } from '@/core/ui/ThemeSwitch/ThemeSwitch';
 
 import { authActions } from '@/modules/auth';
+
+import { useStyles } from './AdminLayout.styles';
 
 const { Header, Sider, Content } = Layout;
 
@@ -30,7 +32,7 @@ export function AdminLayout({
 }: AdminLayoutProps) {
   const dispatch = useDispatch();
   const location = useLocation();
-  const { token } = theme.useToken();
+  const { styles } = useStyles();
 
   const selectedKey = location.pathname.startsWith(PATHS.AUTHORS)
     ? 'authors'
@@ -39,22 +41,9 @@ export function AdminLayout({
       : 'posts';
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout className={styles.layout}>
       <Sider breakpoint="lg" collapsedWidth={64}>
-        <div
-          style={{
-            height: 64,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            fontWeight: 600,
-            paddingInline: 12,
-            textAlign: 'center',
-          }}
-        >
-          Machineheads
-        </div>
+        <div className={styles.logo}>Machineheads</div>
         <Menu
           theme="dark"
           mode="inline"
@@ -79,17 +68,7 @@ export function AdminLayout({
         />
       </Sider>
       <Layout>
-        <Header
-          style={{
-            background: token.colorBgContainer,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            gap: 16,
-            paddingInline: 24,
-            borderBottom: `1px solid ${token.colorBorderSecondary}`,
-          }}
-        >
+        <Header className={styles.header}>
           <ThemeSwitch value={themeMode} onChange={onThemeChange} />
           <Button
             icon={<LogoutOutlined />}
@@ -98,7 +77,7 @@ export function AdminLayout({
             Выйти
           </Button>
         </Header>
-        <Content style={{ margin: 24 }}>{children}</Content>
+        <Content className={styles.content}>{children}</Content>
       </Layout>
     </Layout>
   );
