@@ -41,6 +41,8 @@ pnpm dev — запуск frontend в dev режиме
 - `main.tsx` — импортирует только из `app`
 - Barrel (`index.ts`) — только у модулей (`modules/<name>/index.ts`); в `core` и `app` — прямые импорты из файлов
 
+Эти правила импортов проверяет ESLint (`eslint-plugin-boundaries` + `no-restricted-imports` в `eslint.config.js`).
+
 Страницы экспортируются лениво через `*.async.tsx` (`React.lazy`). Redux-модули подключаются через `redux-dynamic-modules`.
 
 ---
