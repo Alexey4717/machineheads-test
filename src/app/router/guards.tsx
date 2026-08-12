@@ -10,7 +10,7 @@ interface RequireAuthProps {
   children: ReactNode;
 }
 
-export function RequireAuth({ children }: RequireAuthProps) {
+export const RequireAuth = ({ children }: RequireAuthProps) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
   if (!isAuthenticated) {
@@ -18,13 +18,13 @@ export function RequireAuth({ children }: RequireAuthProps) {
   }
 
   return <>{children}</>;
-}
+};
 
 interface RequireGuestProps {
   children: ReactNode;
 }
 
-export function RequireGuest({ children }: RequireGuestProps) {
+export const RequireGuest = ({ children }: RequireGuestProps) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
   if (isAuthenticated) {
@@ -32,4 +32,4 @@ export function RequireGuest({ children }: RequireGuestProps) {
   }
 
   return <>{children}</>;
-}
+};

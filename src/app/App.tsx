@@ -7,7 +7,7 @@ import type { ThemeMode } from '@/core/ui/ThemeSwitch/ThemeSwitch';
 import { AppRouter } from './router/AppRouter';
 import { getThemeConfig, readStoredTheme, storeTheme } from './styles/theme';
 
-export function App() {
+export const App = () => {
   const [themeMode, setThemeMode] = useState<ThemeMode>(() =>
     readStoredTheme(),
   );
@@ -22,4 +22,4 @@ export function App() {
       <AppRouter themeMode={themeMode} onThemeChange={handleThemeChange} />
     </ConfigProvider>
   );
-}
+};

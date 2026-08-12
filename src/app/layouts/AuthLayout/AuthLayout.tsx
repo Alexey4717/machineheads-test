@@ -11,7 +11,7 @@ interface AuthLayoutProps {
   children: ReactNode;
 }
 
-export function AuthLayout({ children }: AuthLayoutProps) {
+export const AuthLayout = ({ children }: AuthLayoutProps) => {
   const { styles } = useStyles();
 
   return (
@@ -32,4 +32,4 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       </Content>
     </Layout>
   );
-}
+};

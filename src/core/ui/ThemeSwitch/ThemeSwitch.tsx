@@ -7,7 +7,7 @@ interface ThemeSwitchProps {
   onChange: (value: ThemeMode) => void;
 }
 
-export function ThemeSwitch({ value, onChange }: ThemeSwitchProps) {
+export const ThemeSwitch = ({ value, onChange }: ThemeSwitchProps) => {
   return (
     <Switch
       checkedChildren="Тёмная"
@@ -16,4 +16,4 @@ export function ThemeSwitch({ value, onChange }: ThemeSwitchProps) {
       onChange={(checked) => onChange(checked ? 'dark' : 'light')}
     />
   );
-}
+};

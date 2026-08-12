@@ -1,8 +1,8 @@
 import type { AuthState } from './types';
 
-type StateWithAuth = {
+interface StateWithAuth {
   auth: AuthState;
-};
+}
 
 export const selectAuthState = (state: StateWithAuth) => state.auth;
 export const selectIsAuthenticated = (state: StateWithAuth) =>

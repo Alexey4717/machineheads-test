@@ -6,7 +6,7 @@ export interface AuthState {
   error: NormalizedApiError | null;
 }
 
-export type LoginCredentials = {
+export interface LoginCredentials {
   email: string;
   password: string;
-};
+}

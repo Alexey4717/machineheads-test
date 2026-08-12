@@ -14,7 +14,7 @@ import type { LoginCredentials } from '../../../model/types';
 import { loginRules } from '../lib/LoginForm.rules';
 import { useStyles } from './LoginForm.styles';
 
-export function LoginForm() {
+export const LoginForm = () => {
   const dispatch = useDispatch();
   const isSubmitting = useSelector(selectAuthIsSubmitting);
   const error = useSelector(selectAuthError);
@@ -37,7 +37,7 @@ export function LoginForm() {
         <Alert
           type="error"
           showIcon
-          message={getErrorMessage(error)}
+          title={getErrorMessage(error)}
           className={styles.alert}
         />
       ) : null}
@@ -68,4 +68,4 @@ export function LoginForm() {
       </Form.Item>
     </Form>
   );
-}
+};

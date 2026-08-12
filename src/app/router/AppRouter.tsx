@@ -43,7 +43,7 @@ function renderRouteContent(
   return content;
 }
 
-export function AppRouter({ themeMode, onThemeChange }: AppRouterProps) {
+export const AppRouter = ({ themeMode, onThemeChange }: AppRouterProps) => {
   const matchedRoutes = Object.entries(routeConfig).filter(
     ([key]) => key !== 'notFound',
   );
@@ -66,4 +66,4 @@ export function AppRouter({ themeMode, onThemeChange }: AppRouterProps) {
       />
     </Switch>
   );
-}
+};

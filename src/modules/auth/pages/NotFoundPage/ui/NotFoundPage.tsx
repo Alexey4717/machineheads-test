@@ -1,6 +1,6 @@
 import { Page } from '@/core/ui/Page/Page';
 
-export default function NotFoundPage() {
+const NotFoundPage = () => {
   return (
     <Page
       title="Страница не найдена"
@@ -11,4 +11,6 @@ export default function NotFoundPage() {
       }}
     />
   );
-}
+};
+
+export default NotFoundPage;

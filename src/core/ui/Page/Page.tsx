@@ -22,14 +22,14 @@ export interface PageProps {
   children?: ReactNode;
 }
 
-export function Page({
+export const Page = ({
   title,
   extra,
   loading = false,
   skeleton,
   error,
   children,
-}: PageProps) {
+}: PageProps) => {
   const { styles } = useStyles();
 
   if (error) {
@@ -55,4 +55,4 @@ export function Page({
       {loading ? (skeleton ?? <Skeleton active />) : children}
     </div>
   );
-}
+};

@@ -7,7 +7,7 @@ import type { InputProps } from 'antd/es/input';
 
 export type FieldType = 'text' | 'password';
 
-export type FieldProps = {
+export interface FieldProps {
   name?: NamePath;
   label?: ReactNode;
   rules?: Rule[];
@@ -39,9 +39,9 @@ export type FieldProps = {
     | 'disabled'
     | 'allowClear'
   >;
-};
+}
 
-export function Field({
+export const Field = ({
   name,
   label,
   rules,
@@ -60,7 +60,7 @@ export function Field({
   validateStatus,
   className,
   inputProps,
-}: FieldProps) {
+}: FieldProps) => {
   const isFormField = name !== undefined && name !== null;
 
   const controlProps = {
@@ -95,4 +95,4 @@ export function Field({
       {control}
     </Form.Item>
   );
-}
+};

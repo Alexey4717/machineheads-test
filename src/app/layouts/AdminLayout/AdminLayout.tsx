@@ -26,11 +26,11 @@ interface AdminLayoutProps {
   onThemeChange: (mode: ThemeMode) => void;
 }
 
-export function AdminLayout({
+export const AdminLayout = ({
   children,
   themeMode,
   onThemeChange,
-}: AdminLayoutProps) {
+}: AdminLayoutProps) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const { styles } = useStyles();
@@ -92,4 +92,4 @@ export function AdminLayout({
       </Layout>
     </Layout>
   );
-}
+};

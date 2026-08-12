@@ -5,7 +5,7 @@ import { Page } from '@/core/ui/Page/Page';
 
 import { getAuthorModule } from '../../../module';
 
-export default function AuthorEditPage() {
+const AuthorEditPage = () => {
   return (
     <DynamicModuleLoader modules={[getAuthorModule()]}>
       <Page title="Редактирование автора">
@@ -13,4 +13,6 @@ export default function AuthorEditPage() {
       </Page>
     </DynamicModuleLoader>
   );
-}
+};
+
+export default AuthorEditPage;

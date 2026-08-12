@@ -5,7 +5,7 @@ import { Page } from '@/core/ui/Page/Page';
 
 import { getTagModule } from '../../../module';
 
-export default function TagsPage() {
+const TagsPage = () => {
   return (
     <DynamicModuleLoader modules={[getTagModule()]}>
       <Page title="Теги">
@@ -13,4 +13,6 @@ export default function TagsPage() {
       </Page>
     </DynamicModuleLoader>
   );
-}
+};
+
+export default TagsPage;

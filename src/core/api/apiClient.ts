@@ -21,7 +21,9 @@ const refreshClient = axios.create({
   baseURL: getApiBaseUrl(),
 });
 
-type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
+interface RetriableConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
 
 let refreshPromise: Promise<string | null> | null = null;
 

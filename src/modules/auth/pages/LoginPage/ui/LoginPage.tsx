@@ -4,7 +4,7 @@ import { Page } from '@/core/ui/Page/Page';
 
 import { LoginForm } from '../../../features/LoginForm/ui/LoginForm';
 
-export default function LoginPage() {
+const LoginPage = () => {
   return (
     <Page title="Вход">
       <Typography.Paragraph type="secondary">
@@ -13,4 +13,6 @@ export default function LoginPage() {
       <LoginForm />
     </Page>
   );
-}
+};
+
+export default LoginPage;

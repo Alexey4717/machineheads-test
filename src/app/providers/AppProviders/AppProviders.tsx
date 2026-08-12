@@ -11,10 +11,10 @@ interface AppProvidersProps {
   children: ReactNode;
 }
 
-export function AppProviders({ children }: AppProvidersProps) {
+export const AppProviders = ({ children }: AppProvidersProps) => {
   return (
     <Provider store={store}>
       <ConnectedRouter history={history}>{children}</ConnectedRouter>
     </Provider>
   );
-}
+};

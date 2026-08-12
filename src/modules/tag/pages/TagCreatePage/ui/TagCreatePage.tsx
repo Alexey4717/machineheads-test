@@ -5,7 +5,7 @@ import { Page } from '@/core/ui/Page/Page';
 
 import { getTagModule } from '../../../module';
 
-export default function TagCreatePage() {
+const TagCreatePage = () => {
   return (
     <DynamicModuleLoader modules={[getTagModule()]}>
       <Page title="Создание тега">
@@ -13,4 +13,6 @@ export default function TagCreatePage() {
       </Page>
     </DynamicModuleLoader>
   );
-}
+};
+
+export default TagCreatePage;

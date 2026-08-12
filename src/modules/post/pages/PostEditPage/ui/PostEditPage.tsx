@@ -5,7 +5,7 @@ import { Page } from '@/core/ui/Page/Page';
 
 import { getPostModule } from '../../../module';
 
-export default function PostEditPage() {
+const PostEditPage = () => {
   return (
     <DynamicModuleLoader modules={[getPostModule()]}>
       <Page title="Редактирование поста">
@@ -13,4 +13,6 @@ export default function PostEditPage() {
       </Page>
     </DynamicModuleLoader>
   );
-}
+};
+
+export default PostEditPage;
