@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { Suspense } from 'react';
-import { useDispatch } from 'react-redux';
 import { Link, useLocation } from 'react-router-dom';
 
 import {
@@ -12,6 +11,7 @@ import {
 import { Button, Layout, Menu, Spin } from 'antd';
 
 import { PATHS } from '@/core/config/router/paths';
+import { useAppDispatch } from '@/core/lib/hooks/useAppDispatch';
 import { type ThemeMode, ThemeSwitch } from '@/core/ui/ThemeSwitch/ThemeSwitch';
 
 import { authActions } from '@/modules/auth';
@@ -31,7 +31,7 @@ export const AdminLayout = ({
   themeMode,
   onThemeChange,
 }: AdminLayoutProps) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const location = useLocation();
   const { styles } = useStyles();
 

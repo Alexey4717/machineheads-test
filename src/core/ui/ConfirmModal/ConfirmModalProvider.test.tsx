@@ -156,6 +156,64 @@ describe('ConfirmModalProvider', () => {
     });
     expect(onResult).toHaveBeenCalledTimes(2);
   });
+
+  it('async onOk: держит модалку открытой с loading, закрывает после resolve', async () => {
+    const user = userEvent.setup();
+    const onResult = vi.fn();
+    let resolveOk!: () => void;
+    const onOk = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveOk = resolve;
+        }),
+    );
+
+    renderConfirmModal({
+      onResult,
+      options: { ...defaultOptions, onOk },
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Открыть confirm' }));
+    await user.click(await screen.findByRole('button', { name: 'Да' }));
+
+    expect(onOk).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(onResult).not.toHaveBeenCalled();
+
+    const okButton = screen.getByRole('button', { name: /Да/ });
+    expect(okButton).toBeDisabled();
+    expect(okButton.className).toMatch(/ant-btn-loading/);
+
+    resolveOk();
+
+    await waitFor(() => {
+      expect(onResult).toHaveBeenCalledWith(true);
+    });
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+  });
+
+  it('async onOk reject: сбрасывает loading, закрывает и резолвит false', async () => {
+    const user = userEvent.setup();
+    const onResult = vi.fn();
+    const onOk = vi.fn(() => Promise.reject(new Error('fail')));
+
+    renderConfirmModal({
+      onResult,
+      options: { ...defaultOptions, onOk },
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Открыть confirm' }));
+    await user.click(await screen.findByRole('button', { name: 'Да' }));
+
+    await waitFor(() => {
+      expect(onResult).toHaveBeenCalledWith(false);
+    });
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+  });
 });
 
 describe('useConfirmModal', () => {

@@ -4,7 +4,6 @@ import type { ISagaModule } from 'redux-dynamic-modules-saga';
 import { getAuthModule } from '@/modules/auth';
 
 import { history } from './history';
-import type { RootState } from './types';
 
 function* rootSaga() {
   // Core root saga placeholder — feature sagas are registered via dynamic modules.

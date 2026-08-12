@@ -33,7 +33,7 @@ pnpm dev — запуск frontend в dev режиме
 
 Покрытие сейчас (существующий код):
 
-- Unit: `errorParsers`, cookies, `formRules`, `getPath`, sessionEvents, auth selectors/reducer, `loginRules`, `Field`, `LoginForm`
+- Unit: `errorParsers`, cookies, `formRules`, `getPath`, sessionEvents, auth selectors/reducer, `loginRules`, `TextField`, `LoginForm`
 - Integration: auth sagas (login success/failure, logout), apiClient interceptors (Bearer, 401 → logout)
 
 E2E (Playwright) и CRUD-сценарии — после реализации posts/authors/tags.
@@ -86,7 +86,7 @@ css-in-js на `antd-style`, без CSS Modules и глобальных css (к�
 
 - Формы — Ant Design `Form` / `Form.useForm()` (без RHF/zod). Значения формы локально в antd; в Redux — submit/loading/ошибки сервера.
 - Валидация — фабрики в `src/core/lib/formRules/formRules.ts`; схемы фичи — в `features/<Feature>/lib/*.rules.ts`.
-- UI формы — в `features/<Feature>/ui/`; поля — самозакрывающийся `Field` (`src/core/ui/Field/Field.tsx`), `type` по умолчанию `text`.
+- UI формы — в `features/<Feature>/ui/`; текстовые поля — самозакрывающийся `TextField` (`src/core/ui/TextField/TextField.tsx`), `type` по умолчанию `text`; числа — `NumberField` (`src/core/ui/NumberField/NumberField.tsx`).
 - Без `name` — controlled (`value`/`onChange`), например фильтры в Redux. Обязательны `testId` (`data-testid`) и `aria-label`, если нет видимого `label`.
 
 ---

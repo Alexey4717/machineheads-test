@@ -5,14 +5,14 @@ import type { FormItemProps, Rule } from 'antd/es/form';
 import type { NamePath } from 'antd/es/form/interface';
 import type { InputProps } from 'antd/es/input';
 
-export type FieldType = 'text' | 'password';
+export type TextFieldType = 'text' | 'password';
 
-export interface FieldProps {
+export interface TextFieldProps {
   name?: NamePath;
   label?: ReactNode;
   rules?: Rule[];
   /** Default: `text` */
-  type?: FieldType;
+  type?: TextFieldType;
   /** Maps to `data-testid` on the interactive control */
   testId: string;
   'aria-label'?: string;
@@ -41,7 +41,7 @@ export interface FieldProps {
   >;
 }
 
-export const Field = ({
+export const TextField = ({
   name,
   label,
   rules,
@@ -60,7 +60,7 @@ export const Field = ({
   validateStatus,
   className,
   inputProps,
-}: FieldProps) => {
+}: TextFieldProps) => {
   const isFormField = name !== undefined && name !== null;
 
   const controlProps = {

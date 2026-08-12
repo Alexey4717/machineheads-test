@@ -8,6 +8,12 @@ export interface ConfirmModalOptions {
   okText?: string;
   cancelText?: string;
   okButtonProps?: ButtonProps;
+  /**
+   * Async-обработчик OK: модалка ставит `confirmLoading` и не закрывается,
+   * пока promise не settle. Успех → закрытие и resolve(`true`);
+   * reject → сброс loading, закрытие и resolve(`false`) — ошибку показывает страница.
+   */
+  onOk?: () => void | Promise<void>;
 }
 
 export interface ConfirmModalContextValue {

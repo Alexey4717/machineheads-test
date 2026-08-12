@@ -13,6 +13,15 @@ export const useStyles = createStyles(({ token, css }) => ({
     justify-content: space-between;
     gap: ${token.margin}px;
   `,
+  titleRow: css`
+    display: flex;
+    align-items: center;
+    gap: ${token.marginXS}px;
+    min-width: 0;
+  `,
+  back: css`
+    flex-shrink: 0;
+  `,
   actions: css`
     display: flex;
     flex-wrap: wrap;

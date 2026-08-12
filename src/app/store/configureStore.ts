@@ -8,7 +8,6 @@ import { PATHS } from '@/core/config/router/paths';
 import { authActions } from '@/modules/auth';
 
 import { getInitialModules } from './rootModule';
-import type { AppStore, RootState } from './types';
 
 export { history } from './history';
 

@@ -1,9 +1,10 @@
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { Alert, Button, Form } from 'antd';
 
 import { getErrorMessage } from '@/core/api/errorParsers';
-import { Field } from '@/core/ui/Field/Field';
+import { useAppDispatch } from '@/core/lib/hooks/useAppDispatch';
+import { TextField } from '@/core/ui/TextField/TextField';
 
 import { authActions } from '../../../model/actions';
 import {
@@ -15,7 +16,7 @@ import { loginRules } from '../lib/form/LoginForm.rules';
 import { useStyles } from './LoginForm.styles';
 
 export const LoginForm = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const isSubmitting = useSelector(selectAuthIsSubmitting);
   const error = useSelector(selectAuthError);
   const [form] = Form.useForm<LoginCredentials>();
@@ -42,7 +43,7 @@ export const LoginForm = () => {
         />
       ) : null}
 
-      <Field
+      <TextField
         name="email"
         label="E-mail"
         rules={loginRules.email}
@@ -51,7 +52,7 @@ export const LoginForm = () => {
         placeholder="email@example.com"
       />
 
-      <Field
+      <TextField
         name="password"
         label="Пароль"
         type="password"

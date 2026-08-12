@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
+import { useHistory } from 'react-router-dom';
 
-import { Result, Skeleton, Typography } from 'antd';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button, Result, Skeleton, Typography } from 'antd';
 
 import { useStyles } from './Page.styles';
 
@@ -17,6 +19,8 @@ export interface PageError {
 
 export interface PageProps {
   title: string;
+  /** Путь для кнопки «назад» слева от заголовка. */
+  backTo?: string;
   extra?: ReactNode;
   actions?: ReactNode;
   loading?: boolean;
@@ -30,11 +34,13 @@ export interface PageProps {
  * либо полноэкранный antd `Result` при ошибке.
  *
  * **Layout без ошибки:**
- * 1. Верхняя строка — `title` слева, опциональный `extra` справа.
+ * 1. Верхняя строка — опциональный `backTo` + `title` слева, опциональный `extra` справа.
  * 2. Под ней — опциональный блок `actions`.
  * 3. Ниже — при `loading` скелетон, иначе `children`.
  *
  * @param props.title - Заголовок страницы (`Typography.Title` level 3) слева в шапке.
+ * @param props.backTo - Если задан — кнопка со стрелкой «назад» слева от заголовка;
+ *   по клику `history.push(backTo)`.
  * @param props.extra - Правая часть шапки в одной строке с заголовком (компактные элементы:
  *   тема, ссылка, одиночная кнопка). Не для ряда кнопок управления — для них `actions`.
  * @param props.actions - Панель действий под строкой заголовка (создать, фильтры и т.п.),
@@ -61,6 +67,14 @@ export interface PageProps {
  *
  * @example
  * ```tsx
+ * // Назад на деталку
+ * <Page title="Редактирование" backTo={getPath(PATHS.TAG_DETAIL, { id })}>
+ *   <TagForm />
+ * </Page>
+ * ```
+ *
+ * @example
+ * ```tsx
  * // Ошибка
  * <Page
  *   title="Пост"
@@ -70,14 +84,15 @@ export interface PageProps {
  *
  * @example
  * ```tsx
- * // Загрузка
- * <Page title="Авторы" loading>
+ * // Загрузка с кастомным скелетоном
+ * <Page title="Авторы" loading skeleton={<AuthorsPageSkeleton />}>
  *   <AuthorsTable />
  * </Page>
  * ```
  */
 export const Page = ({
   title,
+  backTo,
   extra,
   actions,
   loading = false,
@@ -86,6 +101,7 @@ export const Page = ({
   children,
 }: PageProps) => {
   const { styles } = useStyles();
+  const history = useHistory();
 
   if (error) {
     return (
@@ -102,9 +118,20 @@ export const Page = ({
     <div>
       <div className={styles.top}>
         <div className={styles.header}>
-          <Typography.Title level={3} className={styles.title}>
-            {title}
-          </Typography.Title>
+          <div className={styles.titleRow}>
+            {backTo ? (
+              <Button
+                type="text"
+                icon={<ArrowLeftOutlined />}
+                className={styles.back}
+                aria-label="Назад"
+                onClick={() => history.push(backTo)}
+              />
+            ) : null}
+            <Typography.Title level={3} className={styles.title}>
+              {title}
+            </Typography.Title>
+          </div>
           {extra}
         </div>
         {actions ? <div className={styles.actions}>{actions}</div> : null}

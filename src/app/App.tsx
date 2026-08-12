@@ -1,7 +1,9 @@
 import { useState } from 'react';
 
-import { ConfigProvider } from 'antd';
+import { App as AntApp, ConfigProvider } from 'antd';
 
+import { appMessageConfig } from '@/core/lib/message/appMessageConfig';
+import { AppMessageHolder } from '@/core/lib/message/AppMessageHolder';
 import type { ThemeMode } from '@/core/ui/ThemeSwitch/ThemeSwitch';
 
 import { AppRouter } from './router/AppRouter';
@@ -19,7 +21,10 @@ export const App = () => {
 
   return (
     <ConfigProvider theme={getThemeConfig(themeMode)}>
-      <AppRouter themeMode={themeMode} onThemeChange={handleThemeChange} />
+      <AntApp component={false} message={appMessageConfig}>
+        <AppMessageHolder />
+        <AppRouter themeMode={themeMode} onThemeChange={handleThemeChange} />
+      </AntApp>
     </ConfigProvider>
   );
 };

@@ -3,13 +3,13 @@ import userEvent from '@testing-library/user-event';
 import { Form } from 'antd';
 import { describe, expect, it, vi } from 'vitest';
 
-import { Field } from './Field';
+import { TextField } from './TextField';
 
-describe('Field', () => {
+describe('TextField', () => {
   it('прокидывает data-testid на интерактивный контрол', () => {
     render(
       <Form>
-        <Field name="email" label="E-mail" testId="login-email" />
+        <TextField name="email" label="E-mail" testId="login-email" />
       </Form>,
     );
 
@@ -22,7 +22,7 @@ describe('Field', () => {
 
     render(
       <Form layout="vertical" component="div">
-        <Field
+        <TextField
           label="Поиск"
           testId="search"
           aria-label="Поиск"
@@ -39,7 +39,7 @@ describe('Field', () => {
   it('type=password рендерит password input', () => {
     const { container } = render(
       <Form>
-        <Field
+        <TextField
           name="password"
           label="Пароль"
           type="password"
