@@ -2,7 +2,7 @@ import { apiClient } from '@/core/api/apiClient';
 
 import type { Tag, TagFormValues } from '../model/types';
 
-function toTagFormData(payload: TagFormValues): FormData {
+export function toTagFormData(payload: TagFormValues): FormData {
   const formData = new FormData();
   formData.append('code', payload.code);
   formData.append('name', payload.name);

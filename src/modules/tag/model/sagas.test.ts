@@ -167,4 +167,79 @@ describe('tagSaga', () => {
       .dispatch(tagActions.createRequest(values))
       .silentRun();
   });
+
+  it('detail failure', async () => {
+    const apiError = Object.assign(new Error('fail'), {
+      isAxiosError: true,
+      response: {
+        status: 404,
+        data: { message: 'Тег не найден' },
+      },
+      toJSON: () => ({}),
+      name: 'AxiosError',
+    });
+
+    await expectSaga(tagSaga)
+      .provide([[call.fn(tagsApi.fetchTagDetail), throwError(apiError)]])
+      .put(
+        tagActions.detailFailure({
+          kind: 'system',
+          status: 404,
+          error: { message: 'Тег не найден' },
+        }),
+      )
+      .dispatch(tagActions.detailRequest(5))
+      .silentRun();
+  });
+
+  it('update failure: validation + error toast', async () => {
+    const values = { name: 'Тег', code: 'tag', sort: 1 };
+    const apiError = Object.assign(new Error('422'), {
+      isAxiosError: true,
+      response: {
+        status: 422,
+        data: [{ field: 'code', message: 'Занят' }],
+      },
+      toJSON: () => ({}),
+      name: 'AxiosError',
+    });
+
+    await expectSaga(tagSaga)
+      .provide([[call.fn(tagsApi.editTag), throwError(apiError)]])
+      .put(
+        tagActions.updateFailure({
+          kind: 'validation',
+          status: 422,
+          fields: [{ field: 'code', message: 'Занят' }],
+        }),
+      )
+      .call(appMessage.appMessageError, apiError)
+      .dispatch(tagActions.updateRequest({ id: 5, values }))
+      .silentRun();
+  });
+
+  it('remove failure', async () => {
+    const apiError = Object.assign(new Error('fail'), {
+      isAxiosError: true,
+      response: {
+        status: 500,
+        data: { message: 'Не удалось удалить' },
+      },
+      toJSON: () => ({}),
+      name: 'AxiosError',
+    });
+
+    await expectSaga(tagSaga)
+      .provide([[call.fn(tagsApi.removeTag), throwError(apiError)]])
+      .put(
+        tagActions.removeFailure({
+          kind: 'system',
+          status: 500,
+          error: { message: 'Не удалось удалить' },
+        }),
+      )
+      .call(appMessage.appMessageError, apiError)
+      .dispatch(tagActions.removeRequest(5))
+      .silentRun();
+  });
 });

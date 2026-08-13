@@ -53,17 +53,29 @@ export const AdminLayout = ({
             {
               key: 'posts',
               icon: <FileTextOutlined />,
-              label: <Link to={PATHS.POSTS}>Посты</Link>,
+              label: (
+                <Link to={PATHS.POSTS} data-testid="adminLayout_link_POSTS">
+                  Посты
+                </Link>
+              ),
             },
             {
               key: 'authors',
               icon: <TeamOutlined />,
-              label: <Link to={PATHS.AUTHORS}>Авторы</Link>,
+              label: (
+                <Link to={PATHS.AUTHORS} data-testid="adminLayout_link_AUTHORS">
+                  Авторы
+                </Link>
+              ),
             },
             {
               key: 'tags',
               icon: <TagsOutlined />,
-              label: <Link to={PATHS.TAGS}>Теги</Link>,
+              label: (
+                <Link to={PATHS.TAGS} data-testid="adminLayout_link_TAGS">
+                  Теги
+                </Link>
+              ),
             },
           ]}
         />
@@ -74,6 +86,7 @@ export const AdminLayout = ({
           <Button
             icon={<LogoutOutlined />}
             onClick={() => dispatch(authActions.logoutRequest())}
+            data-testid="adminLayout_button_logout"
           >
             Выйти
           </Button>

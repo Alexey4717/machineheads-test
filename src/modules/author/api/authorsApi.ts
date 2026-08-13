@@ -2,7 +2,7 @@ import { apiClient } from '@/core/api/apiClient';
 
 import type { Author, AuthorFormValues } from '../model/types';
 
-function toAuthorFormData(payload: AuthorFormValues): FormData {
+export function toAuthorFormData(payload: AuthorFormValues): FormData {
   const formData = new FormData();
   formData.append('name', payload.name);
   formData.append('lastName', payload.lastName);

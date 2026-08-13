@@ -6,7 +6,7 @@ import { componentRender } from '@/__test__/componentRender';
 
 import { tagActions } from '../../../model/actions';
 import { tagInitialState, tagReducer } from '../../../model/reducer';
-import type { TagState } from '../../../model/types';
+import type { TagFormValues, TagState } from '../../../model/types';
 import { TagForm } from './TagForm';
 
 vi.mock('./TagForm.styles', () => ({
@@ -22,7 +22,11 @@ vi.mock('./components/TagFormSubmitError/TagFormSubmitError.styles', () => ({
 }));
 
 function renderTagForm(
-  props: { mode: 'create' | 'edit'; tagId?: number } = { mode: 'create' },
+  props: {
+    mode: 'create' | 'edit';
+    tagId?: number;
+    initialValues?: Partial<TagFormValues>;
+  } = { mode: 'create' },
   preloaded?: TagState,
   dispatchSpy?: (action: unknown) => void,
 ) {
@@ -93,5 +97,31 @@ describe('TagForm', () => {
     );
 
     expect(screen.getByText('Сервер недоступен')).toBeInTheDocument();
+  });
+
+  it('в mode=edit диспатчит updateRequest, кнопка «Сохранить»', async () => {
+    const user = userEvent.setup();
+    const dispatchSpy = vi.fn();
+    const initialValues: TagFormValues = {
+      name: 'Новости',
+      code: 'news',
+      sort: 1,
+    };
+
+    renderTagForm(
+      { mode: 'edit', tagId: 5, initialValues },
+      undefined,
+      dispatchSpy,
+    );
+
+    const submit = screen.getByTestId('tagForm_button_submit');
+    expect(submit).toHaveTextContent('Сохранить');
+    await user.click(submit);
+
+    await waitFor(() => {
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        tagActions.updateRequest({ id: 5, values: initialValues }),
+      );
+    });
   });
 });

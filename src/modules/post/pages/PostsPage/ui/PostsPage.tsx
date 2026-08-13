@@ -39,7 +39,7 @@ const PostsPageContent = () => {
     <Page
       title="Посты"
       actions={
-        <Link to={PATHS.POST_CREATE}>
+        <Link to={PATHS.POST_CREATE} data-testid="postsPage_link_POST_CREATE">
           <Button type="primary">Создать пост</Button>
         </Link>
       }

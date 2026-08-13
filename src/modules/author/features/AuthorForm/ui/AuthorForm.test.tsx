@@ -6,7 +6,7 @@ import { componentRender } from '@/__test__/componentRender';
 
 import { authorActions } from '../../../model/actions';
 import { authorInitialState, authorReducer } from '../../../model/reducer';
-import type { AuthorState } from '../../../model/types';
+import type { AuthorFormValues, AuthorState } from '../../../model/types';
 import { AuthorForm } from './AuthorForm';
 
 vi.mock('./AuthorForm.styles', () => ({
@@ -31,7 +31,11 @@ vi.mock('@/core/ui/ImageUploadField/ImageUploadField.styles', () => ({
 }));
 
 function renderAuthorForm(
-  props: { mode: 'create' | 'edit'; authorId?: number } = { mode: 'create' },
+  props: {
+    mode: 'create' | 'edit';
+    authorId?: number;
+    initialValues?: Partial<AuthorFormValues>;
+  } = { mode: 'create' },
   preloaded?: AuthorState,
   dispatchSpy?: (action: unknown) => void,
 ) {
@@ -108,5 +112,34 @@ describe('AuthorForm', () => {
     );
 
     expect(screen.getByText('Сервер недоступен')).toBeInTheDocument();
+  });
+
+  it('в mode=edit диспатчит updateRequest, кнопка «Сохранить»', async () => {
+    const user = userEvent.setup();
+    const dispatchSpy = vi.fn();
+    const initialValues: AuthorFormValues = {
+      name: 'Иван',
+      lastName: 'Иванов',
+      secondName: 'Иванович',
+      shortDescription: 'Кратко',
+      description: 'Полное',
+      removeAvatar: false,
+    };
+
+    renderAuthorForm(
+      { mode: 'edit', authorId: 5, initialValues },
+      undefined,
+      dispatchSpy,
+    );
+
+    const submit = screen.getByTestId('authorForm_button_submit');
+    expect(submit).toHaveTextContent('Сохранить');
+    await user.click(submit);
+
+    await waitFor(() => {
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        authorActions.updateRequest({ id: 5, values: initialValues }),
+      );
+    });
   });
 });

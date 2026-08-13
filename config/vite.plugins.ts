@@ -7,7 +7,7 @@ import { stripDataTestId } from './plugins/vite-plugin-strip-data-testid.ts';
 export function plugins(isBuild: boolean): PluginOption[] {
   const pluginList: (PluginOption | false | null | undefined)[] = [
     react(),
-    isBuild && stripDataTestId(),
+    isBuild && process.env.E2E !== '1' && stripDataTestId(),
     !isBuild &&
       checker({
         typescript: { tsconfigPath: './tsconfig.app.json' },

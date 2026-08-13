@@ -189,4 +189,78 @@ describe('postSaga', () => {
       .dispatch(postActions.createRequest(values))
       .silentRun();
   });
+
+  it('detail failure', async () => {
+    const apiError = Object.assign(new Error('fail'), {
+      isAxiosError: true,
+      response: {
+        status: 404,
+        data: { message: 'Пост не найден' },
+      },
+      toJSON: () => ({}),
+      name: 'AxiosError',
+    });
+
+    await expectSaga(postSaga)
+      .provide([[call.fn(postsApi.fetchPostDetail), throwError(apiError)]])
+      .put(
+        postActions.detailFailure({
+          kind: 'system',
+          status: 404,
+          error: { message: 'Пост не найден' },
+        }),
+      )
+      .dispatch(postActions.detailRequest(5))
+      .silentRun();
+  });
+
+  it('update failure: validation + error toast', async () => {
+    const apiError = Object.assign(new Error('422'), {
+      isAxiosError: true,
+      response: {
+        status: 422,
+        data: [{ field: 'title', message: 'Занято' }],
+      },
+      toJSON: () => ({}),
+      name: 'AxiosError',
+    });
+
+    await expectSaga(postSaga)
+      .provide([[call.fn(postsApi.editPost), throwError(apiError)]])
+      .put(
+        postActions.updateFailure({
+          kind: 'validation',
+          status: 422,
+          fields: [{ field: 'title', message: 'Занято' }],
+        }),
+      )
+      .call(appMessage.appMessageError, apiError)
+      .dispatch(postActions.updateRequest({ id: 5, values }))
+      .silentRun();
+  });
+
+  it('remove failure', async () => {
+    const apiError = Object.assign(new Error('fail'), {
+      isAxiosError: true,
+      response: {
+        status: 500,
+        data: { message: 'Не удалось удалить' },
+      },
+      toJSON: () => ({}),
+      name: 'AxiosError',
+    });
+
+    await expectSaga(postSaga)
+      .provide([[call.fn(postsApi.removePost), throwError(apiError)]])
+      .put(
+        postActions.removeFailure({
+          kind: 'system',
+          status: 500,
+          error: { message: 'Не удалось удалить' },
+        }),
+      )
+      .call(appMessage.appMessageError, apiError)
+      .dispatch(postActions.removeRequest(5))
+      .silentRun();
+  });
 });

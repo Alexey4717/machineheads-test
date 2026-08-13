@@ -21,8 +21,10 @@ pnpm dev — запуск frontend в dev режиме
 - `pnpm lint:fix` — ESLint с автофиксом
 - `pnpm format` — Prettier
 - `pnpm format:check` — проверка Prettier
-- `pnpm test` / `pnpm test:unit` — unit + integration (Vitest)
+- `pnpm test` — unit + integration (Vitest)
 - `pnpm test:watch` — Vitest в watch-режиме
+- `pnpm test:e2e` — Playwright e2e (нужна сборка `E2E=1 pnpm build`)
+- `pnpm test:e2e:ui` — Playwright UI-режим (хост `127.0.0.1`, не IPv6 `::1`)
 - `pnpm prepare` — husky hooks
 
 ---
@@ -33,11 +35,12 @@ pnpm dev — запуск frontend в dev режиме
 
 - `data-testid` на интерактивных контролах: `<feature>_<type>_<name>` (например `loginForm_input_email`, `postsList_link_POST_DETAIL_1`). Контролы в RTL ищем через `getByTestId` / `findByTestId`, не через role / title / placeholder / label.
 - Общий рендер: `componentRender` / `TestProvider` из `@/__test__/componentRender` (только в `*.test.ts(x)`).
-- В production-сборке `data-testid` вырезается Vite-плагином (`config/plugins/vite-plugin-strip-data-testid.ts`).
-- Playwright (позже) живёт в корневой `e2e/`, не в `src/__test__`.
+- В production-сборке `data-testid` вырезается Vite-плагином (`config/plugins/vite-plugin-strip-data-testid.ts`). Для e2e-сборки плагин отключается (`E2E=1 pnpm build`).
+- Playwright живёт в корневой `e2e/` (не в `src/__test__`), ходит в моки `page.route`, без живого API. В CI — отдельный job `e2e`.
 
 ```
 pnpm test
+E2E=1 pnpm build && pnpm test:e2e
 ```
 
 ---

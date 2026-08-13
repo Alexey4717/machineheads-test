@@ -173,4 +173,78 @@ describe('authorSaga', () => {
       .dispatch(authorActions.createRequest(values))
       .silentRun();
   });
+
+  it('detail failure', async () => {
+    const apiError = Object.assign(new Error('fail'), {
+      isAxiosError: true,
+      response: {
+        status: 404,
+        data: { message: 'Автор не найден' },
+      },
+      toJSON: () => ({}),
+      name: 'AxiosError',
+    });
+
+    await expectSaga(authorSaga)
+      .provide([[call.fn(authorsApi.fetchAuthorDetail), throwError(apiError)]])
+      .put(
+        authorActions.detailFailure({
+          kind: 'system',
+          status: 404,
+          error: { message: 'Автор не найден' },
+        }),
+      )
+      .dispatch(authorActions.detailRequest(5))
+      .silentRun();
+  });
+
+  it('update failure: validation + error toast', async () => {
+    const apiError = Object.assign(new Error('422'), {
+      isAxiosError: true,
+      response: {
+        status: 422,
+        data: [{ field: 'name', message: 'Занято' }],
+      },
+      toJSON: () => ({}),
+      name: 'AxiosError',
+    });
+
+    await expectSaga(authorSaga)
+      .provide([[call.fn(authorsApi.editAuthor), throwError(apiError)]])
+      .put(
+        authorActions.updateFailure({
+          kind: 'validation',
+          status: 422,
+          fields: [{ field: 'name', message: 'Занято' }],
+        }),
+      )
+      .call(appMessage.appMessageError, apiError)
+      .dispatch(authorActions.updateRequest({ id: 5, values }))
+      .silentRun();
+  });
+
+  it('remove failure', async () => {
+    const apiError = Object.assign(new Error('fail'), {
+      isAxiosError: true,
+      response: {
+        status: 500,
+        data: { message: 'Не удалось удалить' },
+      },
+      toJSON: () => ({}),
+      name: 'AxiosError',
+    });
+
+    await expectSaga(authorSaga)
+      .provide([[call.fn(authorsApi.removeAuthor), throwError(apiError)]])
+      .put(
+        authorActions.removeFailure({
+          kind: 'system',
+          status: 500,
+          error: { message: 'Не удалось удалить' },
+        }),
+      )
+      .call(appMessage.appMessageError, apiError)
+      .dispatch(authorActions.removeRequest(5))
+      .silentRun();
+  });
 });

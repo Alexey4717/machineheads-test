@@ -41,10 +41,17 @@ export const AuthorDetailActions = () => {
 
   return (
     <Space wrap>
-      <Link to={getPath(PATHS.AUTHOR_EDIT, { id: author.id })}>
+      <Link
+        to={getPath(PATHS.AUTHOR_EDIT, { id: author.id })}
+        data-testid="authorDetail_link_AUTHOR_EDIT"
+      >
         <Button>Редактировать</Button>
       </Link>
-      <Button danger onClick={onDelete}>
+      <Button
+        danger
+        onClick={onDelete}
+        data-testid="authorDetail_button_onDelete"
+      >
         Удалить
       </Button>
     </Space>

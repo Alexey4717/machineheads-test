@@ -36,7 +36,7 @@ const TagsPageContent = () => {
     <Page
       title="Теги"
       actions={
-        <Link to={PATHS.TAG_CREATE}>
+        <Link to={PATHS.TAG_CREATE} data-testid="tagsPage_link_TAG_CREATE">
           <Button type="primary">Создать тег</Button>
         </Link>
       }

@@ -36,7 +36,10 @@ const AuthorsPageContent = () => {
     <Page
       title="Авторы"
       actions={
-        <Link to={PATHS.AUTHOR_CREATE}>
+        <Link
+          to={PATHS.AUTHOR_CREATE}
+          data-testid="authorsPage_link_AUTHOR_CREATE"
+        >
           <Button type="primary">Создать автора</Button>
         </Link>
       }

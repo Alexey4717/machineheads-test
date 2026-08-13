@@ -52,7 +52,14 @@ const restrictedTestUtilsPatterns = [
  * - no-restricted-imports по слоям (срабатывает по строке импорта, надёжно в IDE)
  */
 export default defineConfig([
-  globalIgnores(['dist', 'build', 'node_modules']),
+  globalIgnores([
+    'dist',
+    'build',
+    'node_modules',
+    'playwright-report',
+    'test-results',
+    'blob-report',
+  ]),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -303,6 +310,13 @@ export default defineConfig([
           ],
         },
       ],
+    },
+  },
+
+  {
+    files: ['e2e/**/*.{ts,tsx}', 'playwright.config.ts'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
     },
   },
 

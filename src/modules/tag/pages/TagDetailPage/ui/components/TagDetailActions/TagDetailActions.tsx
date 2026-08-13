@@ -25,8 +25,8 @@ export const TagDetailActions = () => {
     return null;
   }
 
-  const onDelete = async () => {
-    await confirm({
+  const onDelete = () => {
+    confirm({
       title: 'Удалить тег?',
       content: `Тег «${tag.name}» будет удалён без возможности восстановления.`,
       okText: 'Удалить',
@@ -38,10 +38,13 @@ export const TagDetailActions = () => {
 
   return (
     <Space wrap>
-      <Link to={getPath(PATHS.TAG_EDIT, { id: tag.id })}>
+      <Link
+        to={getPath(PATHS.TAG_EDIT, { id: tag.id })}
+        data-testid="tagDetail_link_TAG_EDIT"
+      >
         <Button>Редактировать</Button>
       </Link>
-      <Button danger onClick={() => void onDelete()}>
+      <Button danger onClick={onDelete} data-testid="tagDetail_button_onDelete">
         Удалить
       </Button>
     </Space>

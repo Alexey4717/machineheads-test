@@ -38,10 +38,17 @@ export const PostDetailActions = () => {
 
   return (
     <Space wrap>
-      <Link to={getPath(PATHS.POST_EDIT, { id: post.id })}>
+      <Link
+        to={getPath(PATHS.POST_EDIT, { id: post.id })}
+        data-testid="postDetail_link_POST_EDIT"
+      >
         <Button>Редактировать</Button>
       </Link>
-      <Button danger onClick={onDelete}>
+      <Button
+        danger
+        onClick={onDelete}
+        data-testid="postDetail_button_onDelete"
+      >
         Удалить
       </Button>
     </Space>

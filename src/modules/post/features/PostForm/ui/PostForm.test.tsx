@@ -4,8 +4,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { componentRender } from '@/__test__/componentRender';
 
+import { postActions } from '../../../model/actions';
 import { postInitialState, postReducer } from '../../../model/reducer';
-import type { PostState } from '../../../model/types';
+import type { PostFormValues, PostState } from '../../../model/types';
 import { PostForm } from './PostForm';
 
 vi.mock('@/modules/author', () => ({
@@ -55,7 +56,11 @@ vi.mock('@/core/ui/ImageUploadField/ImageUploadField.styles', () => ({
 }));
 
 function renderPostForm(
-  props: { mode: 'create' | 'edit'; postId?: number } = { mode: 'create' },
+  props: {
+    mode: 'create' | 'edit';
+    postId?: number;
+    initialValues?: Partial<PostFormValues>;
+  } = { mode: 'create' },
   preloaded?: PostState,
   dispatchSpy?: (action: unknown) => void,
 ) {
@@ -184,5 +189,50 @@ describe('PostForm', () => {
     );
 
     expect(screen.getByText('Сервер недоступен')).toBeInTheDocument();
+  });
+
+  it('в mode=edit диспатчит updateRequest, кнопка «Сохранить»', async () => {
+    const user = userEvent.setup();
+    const dispatchSpy = vi.fn();
+    const initialValues: PostFormValues = {
+      title: 'Заголовок',
+      code: 'my-post',
+      authorId: 1,
+      tagIds: [2],
+      text: 'Текст поста',
+      previewPicture: [
+        {
+          uid: '1',
+          name: 'preview.png',
+          url: '/old.png',
+          status: 'done',
+        },
+      ],
+    };
+
+    renderPostForm(
+      { mode: 'edit', postId: 5, initialValues },
+      undefined,
+      dispatchSpy,
+    );
+
+    const submit = screen.getByTestId('postForm_button_submit');
+    expect(submit).toHaveTextContent('Сохранить');
+    await user.click(submit);
+
+    await waitFor(() => {
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        postActions.updateRequest({
+          id: 5,
+          values: expect.objectContaining({
+            title: 'Заголовок',
+            code: 'my-post',
+            authorId: 1,
+            tagIds: [2],
+            text: 'Текст поста',
+          }),
+        }),
+      );
+    });
   });
 });
