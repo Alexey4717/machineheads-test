@@ -12,7 +12,12 @@ export const useStyles = createStyles(({ token, css }) => ({
     padding: ${token.paddingLG}px;
   `,
   title: css`
-    margin-bottom: ${token.marginLG}px !important;
+    display: block;
+    margin-bottom: ${token.marginLG}px;
+    color: ${token.colorTextHeading};
+    font-size: ${token.fontSizeHeading2}px;
+    font-weight: ${token.fontWeightStrong};
+    line-height: ${token.lineHeightHeading2};
   `,
   fallback: css`
     display: flex;

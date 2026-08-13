@@ -7,7 +7,7 @@ export const useStyles = createStyles(({ token, css }) => ({
     gap: ${token.marginSM}px;
     margin-bottom: ${token.margin}px;
   `,
-  header: css`
+  bar: css`
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -30,5 +30,7 @@ export const useStyles = createStyles(({ token, css }) => ({
   `,
   title: css`
     margin: 0 !important;
+    font-size: ${token.fontSizeHeading3}px !important;
+    line-height: ${token.lineHeightHeading3} !important;
   `,
 }));

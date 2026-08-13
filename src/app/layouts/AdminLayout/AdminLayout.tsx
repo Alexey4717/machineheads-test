@@ -43,42 +43,47 @@ export const AdminLayout = ({
 
   return (
     <Layout className={styles.layout}>
-      <Sider breakpoint="lg" collapsedWidth={64}>
+      <Sider aria-label="Боковая панель" breakpoint="lg" collapsedWidth={64}>
         <div className={styles.logo}>Machineheads</div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[selectedKey]}
-          items={[
-            {
-              key: 'posts',
-              icon: <FileTextOutlined />,
-              label: (
-                <Link to={PATHS.POSTS} data-testid="adminLayout_link_POSTS">
-                  Посты
-                </Link>
-              ),
-            },
-            {
-              key: 'authors',
-              icon: <TeamOutlined />,
-              label: (
-                <Link to={PATHS.AUTHORS} data-testid="adminLayout_link_AUTHORS">
-                  Авторы
-                </Link>
-              ),
-            },
-            {
-              key: 'tags',
-              icon: <TagsOutlined />,
-              label: (
-                <Link to={PATHS.TAGS} data-testid="adminLayout_link_TAGS">
-                  Теги
-                </Link>
-              ),
-            },
-          ]}
-        />
+        <nav aria-label="Основное меню">
+          <Menu
+            theme="dark"
+            mode="inline"
+            selectedKeys={[selectedKey]}
+            items={[
+              {
+                key: 'posts',
+                icon: <FileTextOutlined />,
+                label: (
+                  <Link to={PATHS.POSTS} data-testid="adminLayout_link_POSTS">
+                    Посты
+                  </Link>
+                ),
+              },
+              {
+                key: 'authors',
+                icon: <TeamOutlined />,
+                label: (
+                  <Link
+                    to={PATHS.AUTHORS}
+                    data-testid="adminLayout_link_AUTHORS"
+                  >
+                    Авторы
+                  </Link>
+                ),
+              },
+              {
+                key: 'tags',
+                icon: <TagsOutlined />,
+                label: (
+                  <Link to={PATHS.TAGS} data-testid="adminLayout_link_TAGS">
+                    Теги
+                  </Link>
+                ),
+              },
+            ]}
+          />
+        </nav>
       </Sider>
       <Layout>
         <Header className={styles.header}>

@@ -17,9 +17,9 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
   return (
     <Layout className={styles.layout}>
       <Content className={styles.content}>
-        <Typography.Title level={2} className={styles.title}>
+        <Typography.Text className={styles.title}>
           Machineheads Admin
-        </Typography.Title>
+        </Typography.Text>
         <Suspense
           fallback={
             <div className={styles.fallback}>

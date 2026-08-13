@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, useId } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { ArrowLeftOutlined } from '@ant-design/icons';
@@ -38,7 +38,7 @@ export interface PageProps {
  * 2. Под ней — опциональный блок `actions`.
  * 3. Ниже — при `loading` скелетон, иначе `children`.
  *
- * @param props.title - Заголовок страницы (`Typography.Title` level 3) слева в шапке.
+ * @param props.title - Заголовок страницы (`Typography.Title` level 1 / h1) слева в шапке.
  * @param props.backTo - Если задан — кнопка со стрелкой «назад» слева от заголовка;
  *   по клику `history.push(backTo)`.
  * @param props.extra - Правая часть шапки в одной строке с заголовком (компактные элементы:
@@ -102,22 +102,25 @@ export const Page = ({
 }: PageProps) => {
   const { styles } = useStyles();
   const history = useHistory();
+  const headingId = useId();
 
   if (error) {
     return (
-      <Result
-        status={error.status ?? 'error'}
-        title={error.title ?? 'Ошибка'}
-        subTitle={error.subtitle}
-        extra={error.extra}
-      />
+      <section aria-label={error.title ?? 'Ошибка'}>
+        <Result
+          status={error.status ?? 'error'}
+          title={error.title ?? 'Ошибка'}
+          subTitle={error.subtitle}
+          extra={error.extra}
+        />
+      </section>
     );
   }
 
   return (
-    <div>
-      <div className={styles.top}>
-        <div className={styles.header}>
+    <section aria-labelledby={headingId}>
+      <header className={styles.top}>
+        <div className={styles.bar}>
           <div className={styles.titleRow}>
             {backTo ? (
               <Button
@@ -128,16 +131,15 @@ export const Page = ({
                 onClick={() => history.push(backTo)}
               />
             ) : null}
-            <Typography.Title level={3} className={styles.title}>
+            <Typography.Title id={headingId} level={1} className={styles.title}>
               {title}
             </Typography.Title>
           </div>
           {extra}
         </div>
         {actions ? <div className={styles.actions}>{actions}</div> : null}
-      </div>
-
+      </header>
       {loading ? (skeleton ?? <Skeleton active />) : children}
-    </div>
+    </section>
   );
 };

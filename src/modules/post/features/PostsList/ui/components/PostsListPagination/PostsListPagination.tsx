@@ -28,7 +28,11 @@ export const PostsListPagination = () => {
   }
 
   return (
-    <div className={styles.root} data-testid="posts-list-pagination">
+    <nav
+      className={styles.root}
+      aria-label="Пагинация"
+      data-testid="posts-list-pagination"
+    >
       <Pagination
         current={pagination.currentPage}
         total={pagination.totalCount}
@@ -39,6 +43,6 @@ export const PostsListPagination = () => {
           dispatch(push(buildPostsPagePath(page)));
         }}
       />
-    </div>
+    </nav>
   );
 };
