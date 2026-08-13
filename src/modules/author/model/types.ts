@@ -39,6 +39,8 @@ export interface AuthorOption {
 export interface AuthorState {
   entities: Record<number, Author>;
   listIds: number[];
+  detailFetchedAt: Record<number, number>;
+  listFetchedAt: number | null;
   listStatus: RequestStatus;
   listError: NormalizedApiError | null;
   detailStatus: RequestStatus;

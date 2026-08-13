@@ -21,6 +21,8 @@ import type { Author, AuthorState } from './types';
 export const authorInitialState: AuthorState = {
   entities: {},
   listIds: [],
+  detailFetchedAt: {},
+  listFetchedAt: null,
   listStatus: 'idle',
   listError: null,
   detailStatus: 'idle',
@@ -46,6 +48,15 @@ function ensureListId(listIds: number[], id: number): number[] {
   return listIds.includes(id) ? listIds : [...listIds, id];
 }
 
+function omitFetchedAt(
+  detailFetchedAt: Record<number, number>,
+  id: number,
+): Record<number, number> {
+  const next = { ...detailFetchedAt };
+  delete next[id];
+  return next;
+}
+
 export function authorReducer(
   state: AuthorState = authorInitialState,
   action: AuthorAction | { type: string },
@@ -66,9 +77,11 @@ export function authorReducer(
       const authors = action.payload as Author[];
       const entities = { ...state.entities };
       const listIds: number[] = [];
+      const now = Date.now();
 
       for (const author of authors) {
-        entities[author.id] = author;
+        const prev = entities[author.id];
+        entities[author.id] = prev ? { ...prev, ...author } : author;
         listIds.push(author.id);
       }
 
@@ -76,6 +89,7 @@ export function authorReducer(
         ...state,
         entities,
         listIds,
+        listFetchedAt: now,
         listStatus: 'success',
         listError: null,
       };
@@ -102,10 +116,12 @@ export function authorReducer(
       }
 
       const author = action.payload as Author;
+      const now = Date.now();
 
       return {
         ...state,
         entities: upsertEntity(state.entities, author),
+        detailFetchedAt: { ...state.detailFetchedAt, [author.id]: now },
         detailStatus: 'success',
         detailError: null,
         currentDetailId: author.id,
@@ -133,11 +149,14 @@ export function authorReducer(
       }
 
       const author = action.payload as Author;
+      const now = Date.now();
 
       return {
         ...state,
         entities: upsertEntity(state.entities, author),
         listIds: ensureListId(state.listIds, author.id),
+        detailFetchedAt: { ...state.detailFetchedAt, [author.id]: now },
+        listFetchedAt: now,
         submitStatus: 'success',
         submitError: null,
         currentDetailId: author.id,
@@ -150,10 +169,13 @@ export function authorReducer(
       }
 
       const author = action.payload as Author;
+      const now = Date.now();
 
       return {
         ...state,
         entities: upsertEntity(state.entities, author),
+        detailFetchedAt: { ...state.detailFetchedAt, [author.id]: now },
+        listFetchedAt: now,
         submitStatus: 'success',
         submitError: null,
         currentDetailId: author.id,
@@ -188,6 +210,8 @@ export function authorReducer(
         ...state,
         entities,
         listIds: state.listIds.filter((listId) => listId !== id),
+        detailFetchedAt: omitFetchedAt(state.detailFetchedAt, id),
+        listFetchedAt: Date.now(),
         removeStatus: 'success',
         removeError: null,
         currentDetailId:

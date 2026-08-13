@@ -11,5 +11,6 @@ export function getAuthorModule(): ISagaModule<{ author: AuthorState }> {
       author: authorReducer,
     },
     sagas: [authorSaga],
+    retained: true,
   };
 }

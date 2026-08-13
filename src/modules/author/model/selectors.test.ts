@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  selectAuthorDetailFetchedAt,
   selectAuthorList,
+  selectAuthorListFetchedAt,
   selectAuthorOptions,
   selectAuthorState,
   selectCurrentAuthor,
@@ -37,6 +39,8 @@ const state = {
     detailStatus: 'success',
     detailError: null,
     currentDetailId: 1,
+    detailFetchedAt: { 1: 1_000 },
+    listFetchedAt: 2_000,
     submitStatus: 'idle',
     submitError: null,
     removeStatus: 'idle',
@@ -62,5 +66,15 @@ describe('author selectors', () => {
       { value: 2, label: 'Петров Пётр Петрович' },
       { value: 1, label: 'Иванов Иван Иванович' },
     ]);
+  });
+
+  it('selectAuthorListFetchedAt', () => {
+    expect(selectAuthorListFetchedAt(state)).toBe(2_000);
+  });
+
+  it('selectAuthorDetailFetchedAt', () => {
+    expect(selectAuthorDetailFetchedAt(1)(state)).toBe(1_000);
+    expect(selectAuthorDetailFetchedAt(2)(state)).toBeUndefined();
+    expect(selectAuthorDetailFetchedAt(null)(state)).toBeUndefined();
   });
 });

@@ -8,6 +8,7 @@ import {
   POST_DETAIL_SUCCESS,
   POST_LIST_FAILURE,
   POST_LIST_REQUEST,
+  POST_LIST_RESTORE,
   POST_LIST_SUCCESS,
   POST_REMOVE_FAILURE,
   POST_REMOVE_REQUEST,
@@ -16,12 +17,19 @@ import {
   POST_UPDATE_REQUEST,
   POST_UPDATE_SUCCESS,
 } from './actions';
-import type { Post, PostsListResult, PostState } from './types';
+import type {
+  Post,
+  PostListPageCache,
+  PostsListResult,
+  PostState,
+} from './types';
 
 export const postInitialState: PostState = {
   entities: {},
   listIds: [],
   pagination: null,
+  detailFetchedAt: {},
+  listCacheByPage: {},
   listStatus: 'idle',
   listError: null,
   detailStatus: 'idle',
@@ -48,6 +56,35 @@ function ensureListId(listIds: number[], id: number): number[] {
   return listIds.includes(id) ? listIds : [...listIds, id];
 }
 
+function omitFetchedAt(
+  detailFetchedAt: Record<number, number>,
+  id: number,
+): Record<number, number> {
+  const next = { ...detailFetchedAt };
+  delete next[id];
+  return next;
+}
+
+function markListPagesStale(
+  listCacheByPage: Record<number, PostListPageCache>,
+  removeId?: number,
+): Record<number, PostListPageCache> {
+  const next: Record<number, PostListPageCache> = {};
+
+  for (const [pageKey, entry] of Object.entries(listCacheByPage)) {
+    next[Number(pageKey)] = {
+      ...entry,
+      fetchedAt: 0,
+      ids:
+        removeId == null
+          ? entry.ids
+          : entry.ids.filter((id) => id !== removeId),
+    };
+  }
+
+  return next;
+}
+
 export function postReducer(
   state: PostState = postInitialState,
   action: PostAction | { type: string },
@@ -68,6 +105,7 @@ export function postReducer(
       const { items, pagination } = action.payload as PostsListResult;
       let entities = { ...state.entities };
       const listIds: number[] = [];
+      const now = Date.now();
 
       for (const post of items) {
         entities = upsertEntity(entities, post);
@@ -79,6 +117,35 @@ export function postReducer(
         entities,
         listIds,
         pagination,
+        listCacheByPage: {
+          ...state.listCacheByPage,
+          [pagination.currentPage]: {
+            ids: listIds,
+            fetchedAt: now,
+            pagination,
+          },
+        },
+        listStatus: 'success',
+        listError: null,
+      };
+    }
+
+    case POST_LIST_RESTORE: {
+      if (!('payload' in action)) {
+        return state;
+      }
+
+      const { page } = action.payload as { page: number };
+      const entry = state.listCacheByPage[page];
+
+      if (!entry) {
+        return state;
+      }
+
+      return {
+        ...state,
+        listIds: entry.ids,
+        pagination: entry.pagination,
         listStatus: 'success',
         listError: null,
       };
@@ -105,10 +172,12 @@ export function postReducer(
       }
 
       const post = action.payload as Post;
+      const now = Date.now();
 
       return {
         ...state,
         entities: upsertEntity(state.entities, post),
+        detailFetchedAt: { ...state.detailFetchedAt, [post.id]: now },
         detailStatus: 'success',
         detailError: null,
         currentDetailId: post.id,
@@ -136,11 +205,14 @@ export function postReducer(
       }
 
       const post = action.payload as Post;
+      const now = Date.now();
 
       return {
         ...state,
         entities: upsertEntity(state.entities, post),
         listIds: ensureListId(state.listIds, post.id),
+        detailFetchedAt: { ...state.detailFetchedAt, [post.id]: now },
+        listCacheByPage: markListPagesStale(state.listCacheByPage),
         submitStatus: 'success',
         submitError: null,
         currentDetailId: post.id,
@@ -153,10 +225,13 @@ export function postReducer(
       }
 
       const post = action.payload as Post;
+      const now = Date.now();
 
       return {
         ...state,
         entities: upsertEntity(state.entities, post),
+        detailFetchedAt: { ...state.detailFetchedAt, [post.id]: now },
+        listCacheByPage: markListPagesStale(state.listCacheByPage),
         submitStatus: 'success',
         submitError: null,
         currentDetailId: post.id,
@@ -191,6 +266,8 @@ export function postReducer(
         ...state,
         entities,
         listIds: state.listIds.filter((listId) => listId !== id),
+        detailFetchedAt: omitFetchedAt(state.detailFetchedAt, id),
+        listCacheByPage: markListPagesStale(state.listCacheByPage, id),
         removeStatus: 'success',
         removeError: null,
         currentDetailId:

@@ -4,6 +4,7 @@ import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { normalizeApiError } from '@/core/api/errorParsers';
 import { getPath } from '@/core/config/router/getPath';
 import { PATHS } from '@/core/config/router/paths';
+import { isFresh } from '@/core/lib/cache/isFresh';
 import {
   appMessageError,
   appMessageSuccess,
@@ -28,12 +29,31 @@ import {
   postActions,
 } from './actions';
 import { parsePageFromSearch } from './parsePageFromSearch';
-import type { Post, PostsListResult } from './types';
+import {
+  selectPostDetailFetchedAtMap,
+  selectPostEntities,
+  selectPostListCacheByPage,
+} from './selectors';
+import type { Post, PostListPageCache, PostsListResult } from './types';
+
+function isCompletePostDetail(post: Post): boolean {
+  return post.text != null && post.author != null;
+}
 
 function* listSaga() {
   try {
     const search: string = yield select(selectRouterSearch);
     const page = parsePageFromSearch(search);
+    const cacheByPage: Record<number, PostListPageCache> = yield select(
+      selectPostListCacheByPage,
+    );
+    const entry = cacheByPage[page];
+
+    if (entry && isFresh(entry.fetchedAt)) {
+      yield put(postActions.listRestore({ page }));
+      return;
+    }
+
     const result: PostsListResult = yield call(fetchPosts, page);
     yield put(postActions.listSuccess(result));
   } catch (error) {
@@ -45,7 +65,19 @@ function* detailSaga(
   action: Extract<PostAction, { type: typeof POST_DETAIL_REQUEST }>,
 ) {
   try {
-    const post: Post = yield call(fetchPostDetail, action.payload);
+    const id = action.payload;
+    const entities: Record<number, Post> = yield select(selectPostEntities);
+    const fetchedAtMap: Record<number, number> = yield select(
+      selectPostDetailFetchedAtMap,
+    );
+    const entity = entities[id];
+
+    if (entity && isFresh(fetchedAtMap[id]) && isCompletePostDetail(entity)) {
+      yield put(postActions.detailSuccess(entity));
+      return;
+    }
+
+    const post: Post = yield call(fetchPostDetail, id);
     yield put(postActions.detailSuccess(post));
   } catch (error) {
     yield put(postActions.detailFailure(normalizeApiError(error)));

@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import {
   selectCurrentPost,
+  selectPostDetailFetchedAt,
   selectPostList,
+  selectPostListCacheByPage,
   selectPostPagination,
   selectPostState,
 } from './selectors';
@@ -47,6 +49,14 @@ const state = {
     detailStatus: 'success',
     detailError: null,
     currentDetailId: 1,
+    detailFetchedAt: { 1: 1_000 },
+    listCacheByPage: {
+      2: {
+        ids: [2, 1],
+        fetchedAt: 2_000,
+        pagination,
+      },
+    },
     submitStatus: 'idle',
     submitError: null,
     removeStatus: 'idle',
@@ -69,5 +79,21 @@ describe('post selectors', () => {
 
   it('selectPostPagination', () => {
     expect(selectPostPagination(state)).toEqual(pagination);
+  });
+
+  it('selectPostListCacheByPage', () => {
+    expect(selectPostListCacheByPage(state)).toEqual({
+      2: {
+        ids: [2, 1],
+        fetchedAt: 2_000,
+        pagination,
+      },
+    });
+  });
+
+  it('selectPostDetailFetchedAt', () => {
+    expect(selectPostDetailFetchedAt(1)(state)).toBe(1_000);
+    expect(selectPostDetailFetchedAt(2)(state)).toBeUndefined();
+    expect(selectPostDetailFetchedAt(null)(state)).toBeUndefined();
   });
 });

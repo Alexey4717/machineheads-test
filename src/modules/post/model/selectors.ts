@@ -40,6 +40,23 @@ export const selectPostPagination = createSelector(
   (post) => post.pagination,
 );
 
+export const selectPostDetailFetchedAtMap = createSelector(
+  selectPostState,
+  (post) => post.detailFetchedAt,
+);
+
+export const selectPostDetailFetchedAt = (id: number | null | undefined) =>
+  createSelector(
+    selectPostDetailFetchedAtMap,
+    (detailFetchedAt): number | undefined =>
+      id == null ? undefined : detailFetchedAt[id],
+  );
+
+export const selectPostListCacheByPage = createSelector(
+  selectPostState,
+  (post) => post.listCacheByPage,
+);
+
 export const selectPostListStatus = createSelector(
   selectPostState,
   (post) => post.listStatus,

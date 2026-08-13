@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import {
   selectCurrentTag,
+  selectTagDetailFetchedAt,
   selectTagList,
+  selectTagListFetchedAt,
   selectTagOptions,
   selectTagState,
 } from './selectors';
@@ -35,6 +37,8 @@ const state = {
     detailStatus: 'success',
     detailError: null,
     currentDetailId: 1,
+    detailFetchedAt: { 1: 1_000 },
+    listFetchedAt: 2_000,
     submitStatus: 'idle',
     submitError: null,
     removeStatus: 'idle',
@@ -60,5 +64,15 @@ describe('tag selectors', () => {
       { value: 2, label: 'Спорт' },
       { value: 1, label: 'Новости' },
     ]);
+  });
+
+  it('selectTagListFetchedAt', () => {
+    expect(selectTagListFetchedAt(state)).toBe(2_000);
+  });
+
+  it('selectTagDetailFetchedAt', () => {
+    expect(selectTagDetailFetchedAt(1)(state)).toBe(1_000);
+    expect(selectTagDetailFetchedAt(2)(state)).toBeUndefined();
+    expect(selectTagDetailFetchedAt(null)(state)).toBeUndefined();
   });
 });

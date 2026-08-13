@@ -4,6 +4,7 @@ import type { Post, PostFormValues, PostsListResult } from './types';
 
 export const POST_LIST_REQUEST = 'post/LIST_REQUEST' as const;
 export const POST_LIST_SUCCESS = 'post/LIST_SUCCESS' as const;
+export const POST_LIST_RESTORE = 'post/LIST_RESTORE' as const;
 export const POST_LIST_FAILURE = 'post/LIST_FAILURE' as const;
 
 export const POST_DETAIL_REQUEST = 'post/DETAIL_REQUEST' as const;
@@ -29,6 +30,10 @@ export const postActions = {
   listSuccess: (result: PostsListResult) => ({
     type: POST_LIST_SUCCESS,
     payload: result,
+  }),
+  listRestore: (payload: { page: number }) => ({
+    type: POST_LIST_RESTORE,
+    payload,
   }),
   listFailure: (error: NormalizedApiError) => ({
     type: POST_LIST_FAILURE,
@@ -91,6 +96,7 @@ export const postActions = {
 export type PostAction =
   | ReturnType<typeof postActions.listRequest>
   | ReturnType<typeof postActions.listSuccess>
+  | ReturnType<typeof postActions.listRestore>
   | ReturnType<typeof postActions.listFailure>
   | ReturnType<typeof postActions.detailRequest>
   | ReturnType<typeof postActions.detailSuccess>

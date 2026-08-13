@@ -36,6 +36,23 @@ export const selectCurrentAuthor = createSelector(
   },
 );
 
+export const selectAuthorDetailFetchedAtMap = createSelector(
+  selectAuthorState,
+  (author) => author.detailFetchedAt,
+);
+
+export const selectAuthorDetailFetchedAt = (id: number | null | undefined) =>
+  createSelector(
+    selectAuthorDetailFetchedAtMap,
+    (detailFetchedAt): number | undefined =>
+      id == null ? undefined : detailFetchedAt[id],
+  );
+
+export const selectAuthorListFetchedAt = createSelector(
+  selectAuthorState,
+  (author) => author.listFetchedAt,
+);
+
 export const selectAuthorListStatus = createSelector(
   selectAuthorState,
   (author) => author.listStatus,

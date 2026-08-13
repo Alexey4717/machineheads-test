@@ -11,5 +11,6 @@ export function getPostModule(): ISagaModule<{ post: PostState }> {
       post: postReducer,
     },
     sagas: [postSaga],
+    retained: true,
   };
 }

@@ -29,11 +29,7 @@ export const PostDetailDescriptions = () => {
         {post.author ? (
           <span className={styles.author}>
             {post.author.avatar?.url ? (
-              <Avatar
-                src={post.author.avatar.url}
-                alt={post.author.avatar.name}
-                size={32}
-              />
+              <Avatar src={post.author.avatar.url} size={32} />
             ) : null}
             {post.author.fullName}
           </span>

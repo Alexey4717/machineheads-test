@@ -13,7 +13,7 @@ export const useStyles = createStyles(({ token, css }) => ({
   `,
   title: css`
     display: block;
-    margin-bottom: ${token.marginLG}px;
+    margin-bottom: ${token.marginLG}px !important;
     color: ${token.colorTextHeading};
     font-size: ${token.fontSizeHeading2}px;
     font-weight: ${token.fontWeightStrong};

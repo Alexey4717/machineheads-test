@@ -1,17 +1,26 @@
 import { push } from 'connected-react-router';
 import { expectSaga } from 'redux-saga-test-plan';
 import { call, select } from 'redux-saga-test-plan/matchers';
-import { throwError } from 'redux-saga-test-plan/providers';
+import {
+  type StaticProvider,
+  throwError,
+} from 'redux-saga-test-plan/providers';
 import { describe, it, vi } from 'vitest';
 
 import { getPath } from '@/core/config/router/getPath';
 import { PATHS } from '@/core/config/router/paths';
+import { DEFAULT_STALE_TIME_MS } from '@/core/lib/cache/isFresh';
 import * as appMessage from '@/core/lib/message/appMessage';
 import { selectRouterSearch } from '@/core/lib/router/selectRouterSearch';
 
 import * as postsApi from '../api/postsApi';
 import { postActions } from './actions';
 import { postSaga } from './sagas';
+import {
+  selectPostDetailFetchedAtMap,
+  selectPostEntities,
+  selectPostListCacheByPage,
+} from './selectors';
 import type { Post, PostFormValues } from './types';
 
 vi.mock('../api/postsApi', () => ({
@@ -57,11 +66,21 @@ const listResult = {
   },
 };
 
+const listCacheMiss: StaticProvider[] = [
+  [select.selector(selectPostListCacheByPage), {}],
+];
+
+const detailCacheMiss: StaticProvider[] = [
+  [select.selector(selectPostEntities), {}],
+  [select.selector(selectPostDetailFetchedAtMap), {}],
+];
+
 describe('postSaga', () => {
   it('list success: читает page из router location', async () => {
     await expectSaga(postSaga)
       .provide([
         [select.selector(selectRouterSearch), '?page=2'],
+        ...listCacheMiss,
         [call.fn(postsApi.fetchPosts), listResult],
       ])
       .put(postActions.listSuccess(listResult))
@@ -84,6 +103,7 @@ describe('postSaga', () => {
     await expectSaga(postSaga)
       .provide([
         [select.selector(selectRouterSearch), ''],
+        ...listCacheMiss,
         [call.fn(postsApi.fetchPosts), throwError(apiError)],
       ])
       .put(
@@ -99,9 +119,162 @@ describe('postSaga', () => {
 
   it('detail success', async () => {
     await expectSaga(postSaga)
-      .provide([[call.fn(postsApi.fetchPostDetail), post]])
+      .provide([...detailCacheMiss, [call.fn(postsApi.fetchPostDetail), post]])
       .put(postActions.detailSuccess(post))
       .dispatch(postActions.detailRequest(5))
+      .silentRun();
+  });
+
+  it('detail stale: вызывает fetchPostDetail', async () => {
+    await expectSaga(postSaga)
+      .provide([
+        [select.selector(selectPostEntities), { 5: post }],
+        [
+          select.selector(selectPostDetailFetchedAtMap),
+          { 5: Date.now() - DEFAULT_STALE_TIME_MS },
+        ],
+        [call.fn(postsApi.fetchPostDetail), post],
+      ])
+      .call(postsApi.fetchPostDetail, 5)
+      .put(postActions.detailSuccess(post))
+      .dispatch(postActions.detailRequest(5))
+      .silentRun();
+  });
+
+  it('detail fresh: без GET, put detailSuccess', async () => {
+    await expectSaga(postSaga)
+      .provide([
+        [select.selector(selectPostEntities), { 5: post }],
+        [select.selector(selectPostDetailFetchedAtMap), { 5: Date.now() }],
+      ])
+      .put(postActions.detailSuccess(post))
+      .not.call.fn(postsApi.fetchPostDetail)
+      .dispatch(postActions.detailRequest(5))
+      .silentRun();
+  });
+
+  it('list stale (старше TTL): вызывает fetchPosts', async () => {
+    await expectSaga(postSaga)
+      .provide([
+        [select.selector(selectRouterSearch), '?page=2'],
+        [
+          select.selector(selectPostListCacheByPage),
+          {
+            2: {
+              ids: [post.id],
+              fetchedAt: Date.now() - DEFAULT_STALE_TIME_MS,
+              pagination: listResult.pagination,
+            },
+          },
+        ],
+        [call.fn(postsApi.fetchPosts), listResult],
+      ])
+      .call(postsApi.fetchPosts, 2)
+      .put(postActions.listSuccess(listResult))
+      .dispatch(postActions.listRequest())
+      .silentRun();
+  });
+
+  it('list stale (fetchedAt: 0): вызывает fetchPosts', async () => {
+    await expectSaga(postSaga)
+      .provide([
+        [select.selector(selectRouterSearch), '?page=2'],
+        [
+          select.selector(selectPostListCacheByPage),
+          {
+            2: {
+              ids: [post.id],
+              fetchedAt: 0,
+              pagination: listResult.pagination,
+            },
+          },
+        ],
+        [call.fn(postsApi.fetchPosts), listResult],
+      ])
+      .call(postsApi.fetchPosts, 2)
+      .put(postActions.listSuccess(listResult))
+      .not.put(postActions.listRestore({ page: 2 }))
+      .dispatch(postActions.listRequest())
+      .silentRun();
+  });
+
+  it('list fresh той же страницы: restore, без GET', async () => {
+    await expectSaga(postSaga)
+      .provide([
+        [select.selector(selectRouterSearch), '?page=2'],
+        [
+          select.selector(selectPostListCacheByPage),
+          {
+            2: {
+              ids: [post.id],
+              fetchedAt: Date.now(),
+              pagination: listResult.pagination,
+            },
+          },
+        ],
+      ])
+      .put(postActions.listRestore({ page: 2 }))
+      .not.call.fn(postsApi.fetchPosts)
+      .dispatch(postActions.listRequest())
+      .silentRun();
+  });
+
+  it('list fresh другой закэшированной страницы: restore, без GET', async () => {
+    await expectSaga(postSaga)
+      .provide([
+        [select.selector(selectRouterSearch), '?page=2'],
+        [
+          select.selector(selectPostListCacheByPage),
+          {
+            1: {
+              ids: [1],
+              fetchedAt: Date.now(),
+              pagination: {
+                currentPage: 1,
+                pageCount: 3,
+                perPage: 10,
+                totalCount: 25,
+              },
+            },
+            2: {
+              ids: [post.id],
+              fetchedAt: Date.now(),
+              pagination: listResult.pagination,
+            },
+          },
+        ],
+      ])
+      .put(postActions.listRestore({ page: 2 }))
+      .not.call.fn(postsApi.fetchPosts)
+      .dispatch(postActions.listRequest())
+      .silentRun();
+  });
+
+  it('list missing page: вызывает fetchPosts', async () => {
+    await expectSaga(postSaga)
+      .provide([
+        [select.selector(selectRouterSearch), '?page=2'],
+        [
+          select.selector(selectPostListCacheByPage),
+          {
+            1: {
+              ids: [1],
+              fetchedAt: Date.now(),
+              pagination: {
+                currentPage: 1,
+                pageCount: 3,
+                perPage: 10,
+                totalCount: 25,
+              },
+            },
+          },
+        ],
+        [call.fn(postsApi.fetchPosts), listResult],
+      ])
+      .call(postsApi.fetchPosts, 2)
+      .put(postActions.listSuccess(listResult))
+      .not.put(postActions.listRestore({ page: 2 }))
+      .dispatch(postActions.listRequest())
       .silentRun();
   });
 
@@ -202,7 +375,10 @@ describe('postSaga', () => {
     });
 
     await expectSaga(postSaga)
-      .provide([[call.fn(postsApi.fetchPostDetail), throwError(apiError)]])
+      .provide([
+        ...detailCacheMiss,
+        [call.fn(postsApi.fetchPostDetail), throwError(apiError)],
+      ])
       .put(
         postActions.detailFailure({
           kind: 'system',

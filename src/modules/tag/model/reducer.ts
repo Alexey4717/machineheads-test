@@ -21,6 +21,8 @@ import type { Tag, TagState } from './types';
 export const tagInitialState: TagState = {
   entities: {},
   listIds: [],
+  detailFetchedAt: {},
+  listFetchedAt: null,
   listStatus: 'idle',
   listError: null,
   detailStatus: 'idle',
@@ -46,6 +48,15 @@ function ensureListId(listIds: number[], id: number): number[] {
   return listIds.includes(id) ? listIds : [...listIds, id];
 }
 
+function omitFetchedAt(
+  detailFetchedAt: Record<number, number>,
+  id: number,
+): Record<number, number> {
+  const next = { ...detailFetchedAt };
+  delete next[id];
+  return next;
+}
+
 export function tagReducer(
   state: TagState = tagInitialState,
   action: TagAction | { type: string },
@@ -66,6 +77,7 @@ export function tagReducer(
       const tags = action.payload as Tag[];
       const entities = { ...state.entities };
       const listIds: number[] = [];
+      const now = Date.now();
 
       for (const tag of tags) {
         entities[tag.id] = tag;
@@ -76,6 +88,7 @@ export function tagReducer(
         ...state,
         entities,
         listIds,
+        listFetchedAt: now,
         listStatus: 'success',
         listError: null,
       };
@@ -102,10 +115,12 @@ export function tagReducer(
       }
 
       const tag = action.payload as Tag;
+      const now = Date.now();
 
       return {
         ...state,
         entities: upsertEntity(state.entities, tag),
+        detailFetchedAt: { ...state.detailFetchedAt, [tag.id]: now },
         detailStatus: 'success',
         detailError: null,
         currentDetailId: tag.id,
@@ -133,11 +148,14 @@ export function tagReducer(
       }
 
       const tag = action.payload as Tag;
+      const now = Date.now();
 
       return {
         ...state,
         entities: upsertEntity(state.entities, tag),
         listIds: ensureListId(state.listIds, tag.id),
+        detailFetchedAt: { ...state.detailFetchedAt, [tag.id]: now },
+        listFetchedAt: now,
         submitStatus: 'success',
         submitError: null,
         currentDetailId: tag.id,
@@ -150,10 +168,13 @@ export function tagReducer(
       }
 
       const tag = action.payload as Tag;
+      const now = Date.now();
 
       return {
         ...state,
         entities: upsertEntity(state.entities, tag),
+        detailFetchedAt: { ...state.detailFetchedAt, [tag.id]: now },
+        listFetchedAt: now,
         submitStatus: 'success',
         submitError: null,
         currentDetailId: tag.id,
@@ -188,6 +209,8 @@ export function tagReducer(
         ...state,
         entities,
         listIds: state.listIds.filter((listId) => listId !== id),
+        detailFetchedAt: omitFetchedAt(state.detailFetchedAt, id),
+        listFetchedAt: Date.now(),
         removeStatus: 'success',
         removeError: null,
         currentDetailId:

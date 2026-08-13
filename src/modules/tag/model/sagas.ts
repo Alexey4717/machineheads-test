@@ -4,6 +4,7 @@ import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { normalizeApiError } from '@/core/api/errorParsers';
 import { getPath } from '@/core/config/router/getPath';
 import { PATHS } from '@/core/config/router/paths';
+import { isFresh } from '@/core/lib/cache/isFresh';
 import {
   appMessageError,
   appMessageSuccess,
@@ -27,10 +28,24 @@ import {
   type TagAction,
   tagActions,
 } from './actions';
+import {
+  selectTagDetailFetchedAtMap,
+  selectTagEntities,
+  selectTagList,
+  selectTagListFetchedAt,
+} from './selectors';
 import type { Tag } from './types';
 
 function* listSaga() {
   try {
+    const listFetchedAt: number | null = yield select(selectTagListFetchedAt);
+
+    if (isFresh(listFetchedAt ?? undefined)) {
+      const tags: Tag[] = yield select(selectTagList);
+      yield put(tagActions.listSuccess(tags));
+      return;
+    }
+
     const tags: Tag[] = yield call(fetchTags);
     yield put(tagActions.listSuccess(tags));
   } catch (error) {
@@ -42,7 +57,19 @@ function* detailSaga(
   action: Extract<TagAction, { type: typeof TAG_DETAIL_REQUEST }>,
 ) {
   try {
-    const tag: Tag = yield call(fetchTagDetail, action.payload);
+    const id = action.payload;
+    const entities: Record<number, Tag> = yield select(selectTagEntities);
+    const fetchedAtMap: Record<number, number> = yield select(
+      selectTagDetailFetchedAtMap,
+    );
+    const entity = entities[id];
+
+    if (entity && isFresh(fetchedAtMap[id])) {
+      yield put(tagActions.detailSuccess(entity));
+      return;
+    }
+
+    const tag: Tag = yield call(fetchTagDetail, id);
     yield put(tagActions.detailSuccess(tag));
   } catch (error) {
     yield put(tagActions.detailFailure(normalizeApiError(error)));

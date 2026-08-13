@@ -11,5 +11,6 @@ export function getTagModule(): ISagaModule<{ tag: TagState }> {
       tag: tagReducer,
     },
     sagas: [tagSaga],
+    retained: true,
   };
 }

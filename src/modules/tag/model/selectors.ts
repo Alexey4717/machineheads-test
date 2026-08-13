@@ -33,6 +33,23 @@ export const selectCurrentTag = createSelector(
   },
 );
 
+export const selectTagDetailFetchedAtMap = createSelector(
+  selectTagState,
+  (tag) => tag.detailFetchedAt,
+);
+
+export const selectTagDetailFetchedAt = (id: number | null | undefined) =>
+  createSelector(
+    selectTagDetailFetchedAtMap,
+    (detailFetchedAt): number | undefined =>
+      id == null ? undefined : detailFetchedAt[id],
+  );
+
+export const selectTagListFetchedAt = createSelector(
+  selectTagState,
+  (tag) => tag.listFetchedAt,
+);
+
 export const selectTagListStatus = createSelector(
   selectTagState,
   (tag) => tag.listStatus,

@@ -4,6 +4,7 @@ import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { normalizeApiError } from '@/core/api/errorParsers';
 import { getPath } from '@/core/config/router/getPath';
 import { PATHS } from '@/core/config/router/paths';
+import { isFresh } from '@/core/lib/cache/isFresh';
 import {
   appMessageError,
   appMessageSuccess,
@@ -27,10 +28,26 @@ import {
   type AuthorAction,
   authorActions,
 } from './actions';
+import {
+  selectAuthorDetailFetchedAtMap,
+  selectAuthorEntities,
+  selectAuthorList,
+  selectAuthorListFetchedAt,
+} from './selectors';
 import type { Author } from './types';
 
 function* listSaga() {
   try {
+    const listFetchedAt: number | null = yield select(
+      selectAuthorListFetchedAt,
+    );
+
+    if (isFresh(listFetchedAt ?? undefined)) {
+      const authors: Author[] = yield select(selectAuthorList);
+      yield put(authorActions.listSuccess(authors));
+      return;
+    }
+
     const authors: Author[] = yield call(fetchAuthors);
     yield put(authorActions.listSuccess(authors));
   } catch (error) {
@@ -42,7 +59,19 @@ function* detailSaga(
   action: Extract<AuthorAction, { type: typeof AUTHOR_DETAIL_REQUEST }>,
 ) {
   try {
-    const author: Author = yield call(fetchAuthorDetail, action.payload);
+    const id = action.payload;
+    const entities: Record<number, Author> = yield select(selectAuthorEntities);
+    const fetchedAtMap: Record<number, number> = yield select(
+      selectAuthorDetailFetchedAtMap,
+    );
+    const entity = entities[id];
+
+    if (entity && isFresh(fetchedAtMap[id])) {
+      yield put(authorActions.detailSuccess(entity));
+      return;
+    }
+
+    const author: Author = yield call(fetchAuthorDetail, id);
     yield put(authorActions.detailSuccess(author));
   } catch (error) {
     yield put(authorActions.detailFailure(normalizeApiError(error)));

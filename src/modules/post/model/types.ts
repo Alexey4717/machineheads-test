@@ -54,10 +54,18 @@ export interface PostsListResult {
   pagination: PaginationMeta;
 }
 
+export interface PostListPageCache {
+  ids: number[];
+  fetchedAt: number;
+  pagination: PaginationMeta;
+}
+
 export interface PostState {
   entities: Record<number, Post>;
   listIds: number[];
   pagination: PaginationMeta | null;
+  detailFetchedAt: Record<number, number>;
+  listCacheByPage: Record<number, PostListPageCache>;
   listStatus: RequestStatus;
   listError: NormalizedApiError | null;
   detailStatus: RequestStatus;

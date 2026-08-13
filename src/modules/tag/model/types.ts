@@ -24,6 +24,8 @@ export interface TagOption {
 export interface TagState {
   entities: Record<number, Tag>;
   listIds: number[];
+  detailFetchedAt: Record<number, number>;
+  listFetchedAt: number | null;
   listStatus: RequestStatus;
   listError: NormalizedApiError | null;
   detailStatus: RequestStatus;

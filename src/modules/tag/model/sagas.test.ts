@@ -1,17 +1,27 @@
 import { push } from 'connected-react-router';
 import { expectSaga } from 'redux-saga-test-plan';
 import { call, select } from 'redux-saga-test-plan/matchers';
-import { throwError } from 'redux-saga-test-plan/providers';
+import {
+  type StaticProvider,
+  throwError,
+} from 'redux-saga-test-plan/providers';
 import { describe, it, vi } from 'vitest';
 
 import { getPath } from '@/core/config/router/getPath';
 import { PATHS } from '@/core/config/router/paths';
+import { DEFAULT_STALE_TIME_MS } from '@/core/lib/cache/isFresh';
 import * as appMessage from '@/core/lib/message/appMessage';
 import { selectRouterSearch } from '@/core/lib/router/selectRouterSearch';
 
 import * as tagsApi from '../api/tagsApi';
 import { tagActions } from './actions';
 import { tagSaga } from './sagas';
+import {
+  selectTagDetailFetchedAtMap,
+  selectTagEntities,
+  selectTagList,
+  selectTagListFetchedAt,
+} from './selectors';
 import type { Tag } from './types';
 
 vi.mock('../api/tagsApi', () => ({
@@ -36,10 +46,19 @@ const tag: Tag = {
   updatedAt: '2024-01-02T00:00:00+00:00',
 };
 
+const listCacheMiss: StaticProvider[] = [
+  [select.selector(selectTagListFetchedAt), null],
+];
+
+const detailCacheMiss: StaticProvider[] = [
+  [select.selector(selectTagEntities), {}],
+  [select.selector(selectTagDetailFetchedAtMap), {}],
+];
+
 describe('tagSaga', () => {
   it('list success', async () => {
     await expectSaga(tagSaga)
-      .provide([[call.fn(tagsApi.fetchTags), [tag]]])
+      .provide([...listCacheMiss, [call.fn(tagsApi.fetchTags), [tag]]])
       .put(tagActions.listSuccess([tag]))
       .dispatch(tagActions.listRequest())
       .silentRun();
@@ -57,7 +76,10 @@ describe('tagSaga', () => {
     });
 
     await expectSaga(tagSaga)
-      .provide([[call.fn(tagsApi.fetchTags), throwError(apiError)]])
+      .provide([
+        ...listCacheMiss,
+        [call.fn(tagsApi.fetchTags), throwError(apiError)],
+      ])
       .put(
         tagActions.listFailure({
           kind: 'system',
@@ -71,9 +93,64 @@ describe('tagSaga', () => {
 
   it('detail success', async () => {
     await expectSaga(tagSaga)
-      .provide([[call.fn(tagsApi.fetchTagDetail), tag]])
+      .provide([...detailCacheMiss, [call.fn(tagsApi.fetchTagDetail), tag]])
       .put(tagActions.detailSuccess(tag))
       .dispatch(tagActions.detailRequest(5))
+      .silentRun();
+  });
+
+  it('detail stale: вызывает fetchTagDetail', async () => {
+    await expectSaga(tagSaga)
+      .provide([
+        [select.selector(selectTagEntities), { 5: tag }],
+        [
+          select.selector(selectTagDetailFetchedAtMap),
+          { 5: Date.now() - DEFAULT_STALE_TIME_MS },
+        ],
+        [call.fn(tagsApi.fetchTagDetail), tag],
+      ])
+      .call(tagsApi.fetchTagDetail, 5)
+      .put(tagActions.detailSuccess(tag))
+      .dispatch(tagActions.detailRequest(5))
+      .silentRun();
+  });
+
+  it('detail fresh: без GET, put detailSuccess', async () => {
+    await expectSaga(tagSaga)
+      .provide([
+        [select.selector(selectTagEntities), { 5: tag }],
+        [select.selector(selectTagDetailFetchedAtMap), { 5: Date.now() }],
+      ])
+      .put(tagActions.detailSuccess(tag))
+      .not.call.fn(tagsApi.fetchTagDetail)
+      .dispatch(tagActions.detailRequest(5))
+      .silentRun();
+  });
+
+  it('list stale: вызывает fetchTags', async () => {
+    await expectSaga(tagSaga)
+      .provide([
+        [
+          select.selector(selectTagListFetchedAt),
+          Date.now() - DEFAULT_STALE_TIME_MS,
+        ],
+        [call.fn(tagsApi.fetchTags), [tag]],
+      ])
+      .call(tagsApi.fetchTags)
+      .put(tagActions.listSuccess([tag]))
+      .dispatch(tagActions.listRequest())
+      .silentRun();
+  });
+
+  it('list fresh: без GET, put listSuccess', async () => {
+    await expectSaga(tagSaga)
+      .provide([
+        [select.selector(selectTagListFetchedAt), Date.now()],
+        [select.selector(selectTagList), [tag]],
+      ])
+      .put(tagActions.listSuccess([tag]))
+      .not.call.fn(tagsApi.fetchTags)
+      .dispatch(tagActions.listRequest())
       .silentRun();
   });
 
@@ -180,7 +257,10 @@ describe('tagSaga', () => {
     });
 
     await expectSaga(tagSaga)
-      .provide([[call.fn(tagsApi.fetchTagDetail), throwError(apiError)]])
+      .provide([
+        ...detailCacheMiss,
+        [call.fn(tagsApi.fetchTagDetail), throwError(apiError)],
+      ])
       .put(
         tagActions.detailFailure({
           kind: 'system',

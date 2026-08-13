@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { authorActions } from './actions';
 import { authorInitialState, authorReducer } from './reducer';
@@ -31,6 +31,16 @@ const authorB: Author = {
 };
 
 describe('authorReducer', () => {
+  const now = 1_700_000_000_000;
+
+  beforeEach(() => {
+    vi.spyOn(Date, 'now').mockReturnValue(now);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('LIST_REQUEST включает loading и сбрасывает error', () => {
     const prev: AuthorState = {
       ...authorInitialState,
@@ -54,8 +64,38 @@ describe('authorReducer', () => {
       ...authorInitialState,
       entities: { 1: authorA, 2: authorB },
       listIds: [1, 2],
+      listFetchedAt: now,
       listStatus: 'success',
       listError: null,
+    });
+  });
+
+  it('LIST_SUCCESS не помечает detail как свежий и мержит detail-поля', () => {
+    const withDetail = authorReducer(
+      authorInitialState,
+      authorActions.detailSuccess(authorB),
+    );
+
+    const listOnly: Author = {
+      id: 2,
+      name: 'Пётр',
+      lastName: 'Петров',
+      secondName: 'Петрович',
+      avatar: authorB.avatar,
+      createdAt: authorB.createdAt,
+      updatedAt: authorB.updatedAt,
+    };
+
+    const next = authorReducer(
+      withDetail,
+      authorActions.listSuccess([listOnly]),
+    );
+
+    expect(next.detailFetchedAt).toEqual({ 2: now });
+    expect(next.entities[2]).toMatchObject({
+      name: 'Пётр',
+      shortDescription: 'Кратко',
+      description: 'Полное',
     });
   });
 
@@ -69,6 +109,7 @@ describe('authorReducer', () => {
       authorReducer(prev, authorActions.detailSuccess(authorB)),
     ).toMatchObject({
       entities: { 1: authorA, 2: authorB },
+      detailFetchedAt: { 2: now },
       detailStatus: 'success',
       currentDetailId: 2,
     });
@@ -80,6 +121,8 @@ describe('authorReducer', () => {
     ).toMatchObject({
       entities: { 1: authorA },
       listIds: [1],
+      detailFetchedAt: { 1: now },
+      listFetchedAt: now,
       submitStatus: 'success',
       currentDetailId: 1,
     });
@@ -97,6 +140,8 @@ describe('authorReducer', () => {
     ).toMatchObject({
       entities: { 1: updated },
       listIds: [1],
+      detailFetchedAt: { 1: now },
+      listFetchedAt: now,
       submitStatus: 'success',
     });
   });
@@ -111,6 +156,8 @@ describe('authorReducer', () => {
       ...prev,
       entities: { 2: authorB },
       listIds: [2],
+      detailFetchedAt: {},
+      listFetchedAt: now,
       removeStatus: 'success',
       removeError: null,
       currentDetailId: null,

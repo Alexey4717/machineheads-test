@@ -72,6 +72,19 @@ E2E=1 pnpm build && pnpm test:e2e
 
 ---
 
+## Кэширование
+
+JSON списков и деталок живёт в Redux 60 секунд (`isFresh` / `DEFAULT_STALE_TIME_MS` в `src/core/lib/cache/isFresh.ts`).
+
+- Саги не делают GET, пока данные свежие.
+- Список постов кэшируется **по страницам** (`listCacheByPage`): переход 1→2→1 не дергает API, пока TTL валиден.
+- Create / update / delete сущности сбрасывает **все** страницы списка (`fetchedAt = 0`) — следующий заход перезапросит.
+- Авторы и теги — один кэш списка, без пагинации.
+- Модули `post` / `author` / `tag` с `retained: true`: кэш не сбрасывается при переходах между разделами.
+- По изображениям работает HTTP-кэш браузера у CDN (`static-test...`).
+
+---
+
 ## Стили
 
 css-in-js на `antd-style`, без CSS Modules и глобальных css (кроме `antd/dist/reset.css`).

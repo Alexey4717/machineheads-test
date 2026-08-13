@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { tagActions } from './actions';
 import { tagInitialState, tagReducer } from './reducer';
@@ -23,6 +23,16 @@ const tagB: Tag = {
 };
 
 describe('tagReducer', () => {
+  const now = 1_700_000_000_000;
+
+  beforeEach(() => {
+    vi.spyOn(Date, 'now').mockReturnValue(now);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('LIST_REQUEST включает loading и сбрасывает error', () => {
     const prev: TagState = {
       ...tagInitialState,
@@ -43,9 +53,19 @@ describe('tagReducer', () => {
       ...tagInitialState,
       entities: { 1: tagA, 2: tagB },
       listIds: [1, 2],
+      listFetchedAt: now,
       listStatus: 'success',
       listError: null,
     });
+  });
+
+  it('LIST_SUCCESS не помечает detail как свежий', () => {
+    const next = tagReducer(
+      tagInitialState,
+      tagActions.listSuccess([tagA, tagB]),
+    );
+
+    expect(next.detailFetchedAt).toEqual({});
   });
 
   it('DETAIL_SUCCESS upsert entity', () => {
@@ -53,6 +73,7 @@ describe('tagReducer', () => {
 
     expect(tagReducer(prev, tagActions.detailSuccess(tagB))).toMatchObject({
       entities: { 1: tagA, 2: tagB },
+      detailFetchedAt: { 2: now },
       detailStatus: 'success',
       currentDetailId: 2,
     });
@@ -64,6 +85,8 @@ describe('tagReducer', () => {
     ).toMatchObject({
       entities: { 1: tagA },
       listIds: [1],
+      detailFetchedAt: { 1: now },
+      listFetchedAt: now,
       submitStatus: 'success',
       currentDetailId: 1,
     });
@@ -76,6 +99,8 @@ describe('tagReducer', () => {
     expect(tagReducer(prev, tagActions.updateSuccess(updated))).toMatchObject({
       entities: { 1: updated },
       listIds: [1],
+      detailFetchedAt: { 1: now },
+      listFetchedAt: now,
       submitStatus: 'success',
     });
   });
@@ -90,6 +115,8 @@ describe('tagReducer', () => {
       ...prev,
       entities: { 2: tagB },
       listIds: [2],
+      detailFetchedAt: {},
+      listFetchedAt: now,
       removeStatus: 'success',
       removeError: null,
       currentDetailId: null,

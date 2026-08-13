@@ -29,7 +29,7 @@ export const AuthorDetailDescriptions = () => {
       </Descriptions.Item>
       <Descriptions.Item label="Аватар">
         {author.avatar?.url ? (
-          <Avatar src={author.avatar.url} alt={author.avatar.name} size={64} />
+          <Avatar src={author.avatar.url} size={64} />
         ) : (
           '—'
         )}
