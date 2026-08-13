@@ -12,28 +12,24 @@ import { Button, Layout, Menu, Spin } from 'antd';
 
 import { PATHS } from '@/core/config/router/paths';
 import { useAppDispatch } from '@/core/lib/hooks/useAppDispatch';
-import { type ThemeMode, ThemeSwitch } from '@/core/ui/ThemeSwitch/ThemeSwitch';
+import { ThemeSwitch } from '@/core/ui/ThemeSwitch/ThemeSwitch';
 
 import { authActions } from '@/modules/auth';
 
+import { useThemeMode } from '../../providers/ThemeProvider/ThemeProvider';
 import { useStyles } from './AdminLayout.styles';
 
 const { Header, Sider, Content } = Layout;
 
 interface AdminLayoutProps {
   children: ReactNode;
-  themeMode: ThemeMode;
-  onThemeChange: (mode: ThemeMode) => void;
 }
 
-export const AdminLayout = ({
-  children,
-  themeMode,
-  onThemeChange,
-}: AdminLayoutProps) => {
+export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const dispatch = useAppDispatch();
   const location = useLocation();
   const { styles } = useStyles();
+  const { themeMode, onThemeChange } = useThemeMode();
 
   const selectedKey = location.pathname.startsWith(PATHS.AUTHORS)
     ? 'authors'
