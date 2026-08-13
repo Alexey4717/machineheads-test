@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 import {
@@ -28,8 +28,11 @@ interface AdminLayoutProps {
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const { styles } = useStyles();
+  const { styles, cx } = useStyles();
   const { themeMode, onThemeChange } = useThemeMode();
+  const [collapsed, setCollapsed] = useState(
+    window.matchMedia('screen and (max-width: 991.98px)').matches,
+  );
 
   const selectedKey = location.pathname.startsWith(PATHS.AUTHORS)
     ? 'authors'
@@ -39,8 +42,19 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   return (
     <Layout className={styles.layout}>
-      <Sider aria-label="Боковая панель" breakpoint="lg" collapsedWidth={64}>
-        <div className={styles.logo}>Machineheads</div>
+      <Sider
+        aria-label="Боковая панель"
+        breakpoint="lg"
+        collapsed={collapsed}
+        collapsedWidth={64}
+        onCollapse={setCollapsed}
+      >
+        <div
+          className={cx(styles.logo, collapsed && styles.logoCollapsed)}
+          title="Machineheads"
+        >
+          {collapsed ? 'M' : 'Machineheads'}
+        </div>
         <nav aria-label="Основное меню">
           <Menu
             theme="dark"

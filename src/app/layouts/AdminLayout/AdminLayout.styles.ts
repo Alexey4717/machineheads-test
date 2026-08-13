@@ -7,12 +7,17 @@ export const useStyles = createStyles(({ token, css }) => ({
   logo: css`
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     height: 64px;
-    padding-inline: ${token.paddingSM}px;
+    padding-inline: ${token.padding}px;
+    overflow: hidden;
     color: ${token.colorWhite};
     font-weight: ${token.fontWeightStrong};
-    text-align: center;
+    white-space: nowrap;
+  `,
+  logoCollapsed: css`
+    justify-content: center;
+    padding-inline: 0;
   `,
   header: css`
     display: flex;
