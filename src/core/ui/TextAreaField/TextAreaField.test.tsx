@@ -1,34 +1,38 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Form } from 'antd';
 import { describe, expect, it, vi } from 'vitest';
+
+import { componentRender } from '@/__test__/componentRender';
 
 import { TextAreaField } from './TextAreaField';
 
 describe('TextAreaField', () => {
   it('прокидывает data-testid на интерактивный контрол', () => {
-    render(
+    componentRender(
       <Form>
         <TextAreaField
           name="description"
           label="Описание"
-          testId="author-description"
+          data-testid="authorForm_input_description"
         />
       </Form>,
     );
 
-    expect(screen.getByTestId('author-description')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('authorForm_input_description'),
+    ).toBeInTheDocument();
   });
 
   it('в режиме без name работает controlled', async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
 
-    render(
+    componentRender(
       <Form layout="vertical" component="div">
         <TextAreaField
           label="Комментарий"
-          testId="comment"
+          data-testid="comment"
           aria-label="Комментарий"
           value=""
           onChange={onChange}
@@ -41,9 +45,9 @@ describe('TextAreaField', () => {
   });
 
   it('прокидывает rows на textarea', () => {
-    render(
+    componentRender(
       <Form>
-        <TextAreaField name="bio" label="Био" testId="bio" rows={5} />
+        <TextAreaField name="bio" label="Био" data-testid="bio" rows={5} />
       </Form>,
     );
 

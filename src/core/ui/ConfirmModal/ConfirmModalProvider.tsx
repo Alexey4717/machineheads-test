@@ -88,9 +88,13 @@ export const ConfirmModalProvider = ({
           ...state.options?.okButtonProps,
           disabled:
             state.confirmLoading || state.options?.okButtonProps?.disabled,
+          'data-testid': 'confirmModal_button_handleOk',
         }}
         confirmLoading={state.confirmLoading}
-        cancelButtonProps={{ disabled: state.confirmLoading }}
+        cancelButtonProps={{
+          disabled: state.confirmLoading,
+          'data-testid': 'confirmModal_button_handleCancel',
+        }}
         onOk={() => void handleOk()}
         onCancel={handleCancel}
         destroyOnHidden

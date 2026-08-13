@@ -1,11 +1,8 @@
-import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
-
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ConfigProvider } from 'antd';
-import { legacy_createStore as createStore } from 'redux';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
+import { componentRender } from '@/__test__/componentRender';
 
 import { postInitialState, postReducer } from '../../../model/reducer';
 import type { PostState } from '../../../model/types';
@@ -64,32 +61,12 @@ function renderPostForm(
 ) {
   const initialPost = preloaded ?? postInitialState;
 
-  const store = createStore(
-    (
-      state: { post: PostState } = { post: initialPost },
-      action: { type: string },
-    ) => ({
-      post: postReducer(state.post, action),
-    }),
-  );
-
-  if (dispatchSpy) {
-    const originalDispatch = store.dispatch.bind(store);
-    store.dispatch = ((action: unknown) => {
-      dispatchSpy(action as never);
-      return originalDispatch(action as never);
-    }) as typeof store.dispatch;
-  }
-
-  return render(
-    <Provider store={store}>
-      <MemoryRouter initialEntries={['/posts/new']}>
-        <ConfigProvider>
-          <PostForm {...props} />
-        </ConfigProvider>
-      </MemoryRouter>
-    </Provider>,
-  );
+  return componentRender(<PostForm {...props} />, {
+    reducers: { post: postReducer },
+    preloadedState: { post: initialPost },
+    dispatchSpy,
+    initialEntries: ['/posts/new'],
+  });
 }
 
 describe('PostForm', () => {
@@ -102,7 +79,9 @@ describe('PostForm', () => {
     const dispatchSpy = vi.fn();
     renderPostForm({ mode: 'create' }, undefined, dispatchSpy);
 
-    await user.click(screen.getByRole('button', { name: 'Создать' }));
+    const submit = screen.getByTestId('postForm_button_submit');
+    expect(submit).toHaveTextContent('Создать');
+    await user.click(submit);
 
     await waitFor(() => {
       expect(screen.getByText('Укажите название')).toBeInTheDocument();
@@ -118,17 +97,17 @@ describe('PostForm', () => {
     const dispatchSpy = vi.fn();
     renderPostForm({ mode: 'create' }, undefined, dispatchSpy);
 
-    await user.type(screen.getByTestId('post-title'), 'Заголовок');
-    await user.type(screen.getByTestId('post-code'), 'my-post');
-    await user.type(screen.getByTestId('post-text'), 'Текст поста');
+    await user.type(screen.getByTestId('postForm_input_title'), 'Заголовок');
+    await user.type(screen.getByTestId('postForm_input_code'), 'my-post');
+    await user.type(screen.getByTestId('postForm_input_text'), 'Текст поста');
 
-    await user.click(screen.getByRole('combobox', { name: /Автор/i }));
+    await user.click(screen.getByTestId('postForm_select_authorId'));
     await user.click(await screen.findByText('Иванов Иван Иванович'));
 
-    await user.click(screen.getByRole('combobox', { name: /Теги/i }));
+    await user.click(screen.getByTestId('postForm_select_tagIds'));
     await user.click(await screen.findByText('Новости'));
 
-    await user.click(screen.getByRole('button', { name: 'Создать' }));
+    await user.click(screen.getByTestId('postForm_button_submit'));
 
     await waitFor(() => {
       expect(
@@ -147,24 +126,22 @@ describe('PostForm', () => {
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock-preview');
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
 
-    const { container } = renderPostForm(
-      { mode: 'create' },
-      undefined,
-      dispatchSpy,
-    );
+    renderPostForm({ mode: 'create' }, undefined, dispatchSpy);
 
-    await user.type(screen.getByTestId('post-title'), 'Заголовок');
-    await user.type(screen.getByTestId('post-code'), 'my-post');
-    await user.type(screen.getByTestId('post-text'), 'Текст поста');
+    await user.type(screen.getByTestId('postForm_input_title'), 'Заголовок');
+    await user.type(screen.getByTestId('postForm_input_code'), 'my-post');
+    await user.type(screen.getByTestId('postForm_input_text'), 'Текст поста');
 
-    await user.click(screen.getByRole('combobox', { name: /Автор/i }));
+    await user.click(screen.getByTestId('postForm_select_authorId'));
     await user.click(await screen.findByText('Иванов Иван Иванович'));
 
-    await user.click(screen.getByRole('combobox', { name: /Теги/i }));
+    await user.click(screen.getByTestId('postForm_select_tagIds'));
     await user.click(await screen.findByText('Новости'));
 
-    const input =
-      container.querySelector<HTMLInputElement>('input[type="file"]');
+    const input = screen
+      .getByTestId('postForm_upload_previewPicture')
+      .closest('.ant-form-item')
+      ?.querySelector<HTMLInputElement>('input[type="file"]');
     expect(input).toBeTruthy();
 
     const file = new File(['image-bytes'], 'preview.png', {
@@ -172,7 +149,7 @@ describe('PostForm', () => {
     });
     await user.upload(input!, file);
 
-    await user.click(screen.getByRole('button', { name: 'Создать' }));
+    await user.click(screen.getByTestId('postForm_button_submit'));
 
     await waitFor(() => {
       expect(dispatchSpy).toHaveBeenCalledWith(

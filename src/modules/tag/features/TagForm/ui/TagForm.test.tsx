@@ -1,10 +1,8 @@
-import { Provider } from 'react-redux';
-
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ConfigProvider } from 'antd';
-import { legacy_createStore as createStore } from 'redux';
 import { describe, expect, it, vi } from 'vitest';
+
+import { componentRender } from '@/__test__/componentRender';
 
 import { tagActions } from '../../../model/actions';
 import { tagInitialState, tagReducer } from '../../../model/reducer';
@@ -30,30 +28,11 @@ function renderTagForm(
 ) {
   const initialTag = preloaded ?? tagInitialState;
 
-  const store = createStore(
-    (
-      state: { tag: TagState } = { tag: initialTag },
-      action: { type: string },
-    ) => ({
-      tag: tagReducer(state.tag, action),
-    }),
-  );
-
-  if (dispatchSpy) {
-    const originalDispatch = store.dispatch.bind(store);
-    store.dispatch = ((action: unknown) => {
-      dispatchSpy(action as never);
-      return originalDispatch(action as never);
-    }) as typeof store.dispatch;
-  }
-
-  return render(
-    <Provider store={store}>
-      <ConfigProvider>
-        <TagForm {...props} />
-      </ConfigProvider>
-    </Provider>,
-  );
+  return componentRender(<TagForm {...props} />, {
+    reducers: { tag: tagReducer },
+    preloadedState: { tag: initialTag },
+    dispatchSpy,
+  });
 }
 
 describe('TagForm', () => {
@@ -62,7 +41,9 @@ describe('TagForm', () => {
     const dispatchSpy = vi.fn();
     renderTagForm({ mode: 'create' }, undefined, dispatchSpy);
 
-    await user.click(screen.getByRole('button', { name: 'Создать' }));
+    const submit = screen.getByTestId('tagForm_button_submit');
+    expect(submit).toHaveTextContent('Создать');
+    await user.click(submit);
 
     await waitFor(() => {
       expect(screen.getByText('Укажите название')).toBeInTheDocument();
@@ -78,10 +59,10 @@ describe('TagForm', () => {
     const dispatchSpy = vi.fn();
     renderTagForm({ mode: 'create' }, undefined, dispatchSpy);
 
-    await user.type(screen.getByTestId('tag-name'), 'Новости');
-    await user.type(screen.getByTestId('tag-code'), 'news');
-    await user.type(screen.getByTestId('tag-sort'), '0');
-    await user.click(screen.getByRole('button', { name: 'Создать' }));
+    await user.type(screen.getByTestId('tagForm_input_name'), 'Новости');
+    await user.type(screen.getByTestId('tagForm_input_code'), 'news');
+    await user.type(screen.getByTestId('tagForm_input_sort'), '0');
+    await user.click(screen.getByTestId('tagForm_button_submit'));
 
     await waitFor(() => {
       expect(dispatchSpy).toHaveBeenCalledWith(
@@ -97,7 +78,7 @@ describe('TagForm', () => {
   it('поле sort пустое по умолчанию (не 0)', () => {
     renderTagForm({ mode: 'create' });
 
-    const sortInput = screen.getByTestId('tag-sort');
+    const sortInput = screen.getByTestId('tagForm_input_sort');
     expect(sortInput).not.toHaveValue(0);
     expect(String((sortInput as HTMLInputElement).value)).toBe('');
   });

@@ -16,6 +16,7 @@ const config = {
   importOrder: [
     '^react',
     '<THIRD_PARTY_MODULES>',
+    '^(@/)?__test__/(.*)$',
     '^(@/)?core/(.*)$',
     '^(@/)?modules/(.*)$',
     '^(@/)?app/(.*)$',

@@ -71,7 +71,7 @@ export const AuthorForm = ({
         name="lastName"
         label="Фамилия"
         rules={authorFormRules.lastName}
-        testId="author-last-name"
+        data-testid="authorForm_input_lastName"
         placeholder="Иванов"
       />
 
@@ -79,7 +79,7 @@ export const AuthorForm = ({
         name="name"
         label="Имя"
         rules={authorFormRules.name}
-        testId="author-name"
+        data-testid="authorForm_input_name"
         placeholder="Иван"
       />
 
@@ -87,7 +87,7 @@ export const AuthorForm = ({
         name="secondName"
         label="Отчество"
         rules={authorFormRules.secondName}
-        testId="author-second-name"
+        data-testid="authorForm_input_secondName"
         placeholder="Иванович"
       />
 
@@ -95,7 +95,7 @@ export const AuthorForm = ({
         name="shortDescription"
         label="Краткое описание"
         rules={authorFormRules.shortDescription}
-        testId="author-short-description"
+        data-testid="authorForm_input_shortDescription"
         rows={3}
         placeholder="Кратко об авторе"
       />
@@ -104,7 +104,7 @@ export const AuthorForm = ({
         name="description"
         label="Описание"
         rules={authorFormRules.description}
-        testId="author-description"
+        data-testid="authorForm_input_description"
         rows={5}
         placeholder="Полное описание"
       />
@@ -112,7 +112,7 @@ export const AuthorForm = ({
       <ImageUploadField
         name="avatar"
         label="Аватар"
-        testId="author-avatar"
+        data-testid="authorForm_upload_avatar"
         tip="JPG/PNG, один файл"
         removeFlagName="removeAvatar"
       />

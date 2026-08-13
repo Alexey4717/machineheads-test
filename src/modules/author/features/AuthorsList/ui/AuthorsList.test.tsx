@@ -1,10 +1,7 @@
-import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
-
-import { render, screen } from '@testing-library/react';
-import { ConfigProvider } from 'antd';
-import { legacy_createStore as createStore } from 'redux';
+import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+
+import { componentRender } from '@/__test__/componentRender';
 
 import { authorInitialState, authorReducer } from '../../../model/reducer';
 import type { Author, AuthorState } from '../../../model/types';
@@ -56,24 +53,10 @@ const author: Author = {
 function renderAuthorsList(preloaded?: AuthorState) {
   const initialAuthor = preloaded ?? authorInitialState;
 
-  const store = createStore(
-    (
-      state: { author: AuthorState } = { author: initialAuthor },
-      action: { type: string },
-    ) => ({
-      author: authorReducer(state.author, action),
-    }),
-  );
-
-  return render(
-    <Provider store={store}>
-      <MemoryRouter>
-        <ConfigProvider>
-          <AuthorsList />
-        </ConfigProvider>
-      </MemoryRouter>
-    </Provider>,
-  );
+  return componentRender(<AuthorsList />, {
+    reducers: { author: authorReducer },
+    preloadedState: { author: initialAuthor },
+  });
 }
 
 describe('AuthorsList', () => {
@@ -92,12 +75,11 @@ describe('AuthorsList', () => {
     });
 
     expect(screen.getByTestId('authors-list')).toBeInTheDocument();
-    expect(screen.getByTestId('authors-list-card-1')).toHaveTextContent(
-      'Иванов Иван Иванович',
-    );
-    expect(screen.getByTestId('authors-list-card-1')).toHaveAttribute(
-      'href',
-      '/authors/1',
-    );
+    expect(
+      screen.getByTestId('authorsList_link_AUTHOR_DETAIL_1'),
+    ).toHaveTextContent('Иванов Иван Иванович');
+    expect(
+      screen.getByTestId('authorsList_link_AUTHOR_DETAIL_1'),
+    ).toHaveAttribute('href', '/authors/1');
   });
 });

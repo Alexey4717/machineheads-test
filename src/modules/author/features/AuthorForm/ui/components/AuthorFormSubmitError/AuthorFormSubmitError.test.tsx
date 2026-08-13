@@ -1,9 +1,10 @@
-import { Provider } from 'react-redux';
-
-import { render, screen, waitFor } from '@testing-library/react';
-import { ConfigProvider, Form } from 'antd';
-import { legacy_createStore as createStore } from 'redux';
+import { screen, waitFor } from '@testing-library/react';
+import { Form } from 'antd';
 import { describe, expect, it, vi } from 'vitest';
+
+import { componentRender } from '@/__test__/componentRender';
+
+import { TextField } from '@/core/ui/TextField/TextField';
 
 import {
   authorInitialState,
@@ -21,26 +22,15 @@ vi.mock('./AuthorFormSubmitError.styles', () => ({
 function renderWithStore(preloaded?: AuthorState) {
   const initialAuthor = preloaded ?? authorInitialState;
 
-  const store = createStore(
-    (
-      state: { author: AuthorState } = { author: initialAuthor },
-      action: { type: string },
-    ) => ({
-      author: authorReducer(state.author, action),
-    }),
-  );
-
-  return render(
-    <Provider store={store}>
-      <ConfigProvider>
-        <Form>
-          <AuthorFormSubmitError />
-          <Form.Item name="name">
-            <input data-testid="name-field" />
-          </Form.Item>
-        </Form>
-      </ConfigProvider>
-    </Provider>,
+  return componentRender(
+    <Form>
+      <AuthorFormSubmitError />
+      <TextField name="name" data-testid="authorForm_input_name" />
+    </Form>,
+    {
+      reducers: { author: authorReducer },
+      preloadedState: { author: initialAuthor },
+    },
   );
 }
 

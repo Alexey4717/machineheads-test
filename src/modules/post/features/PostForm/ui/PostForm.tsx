@@ -64,7 +64,7 @@ export const PostForm = ({ mode, postId, initialValues }: PostFormProps) => {
         name="title"
         label="Название"
         rules={postFormRules.title}
-        testId="post-title"
+        data-testid="postForm_input_title"
         placeholder="Название поста"
       />
 
@@ -72,7 +72,7 @@ export const PostForm = ({ mode, postId, initialValues }: PostFormProps) => {
         name="code"
         label="Код"
         rules={postFormRules.code}
-        testId="post-code"
+        data-testid="postForm_input_code"
         placeholder="post-code"
       />
 
@@ -84,7 +84,7 @@ export const PostForm = ({ mode, postId, initialValues }: PostFormProps) => {
         name="text"
         label="Текст"
         rules={postFormRules.text}
-        testId="post-text"
+        data-testid="postForm_input_text"
         rows={6}
         placeholder="Текст поста"
       />
@@ -93,7 +93,7 @@ export const PostForm = ({ mode, postId, initialValues }: PostFormProps) => {
         name="previewPicture"
         label="Превью"
         rules={postFormRules.previewPicture}
-        testId="post-preview-picture"
+        data-testid="postForm_upload_previewPicture"
         tip="JPG/PNG, один файл"
       />
 

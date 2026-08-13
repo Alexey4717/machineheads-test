@@ -1,9 +1,8 @@
-import { Provider } from 'react-redux';
-
-import { render, screen } from '@testing-library/react';
-import { ConfigProvider, Form } from 'antd';
-import { legacy_createStore as createStore } from 'redux';
+import { screen } from '@testing-library/react';
+import { Form } from 'antd';
 import { describe, expect, it } from 'vitest';
+
+import { componentRender } from '@/__test__/componentRender';
 
 import {
   authorInitialState,
@@ -15,23 +14,14 @@ import { AuthorFormSubmitButton } from './AuthorFormSubmitButton';
 function renderButton(mode: 'create' | 'edit', preloaded?: AuthorState) {
   const initialAuthor = preloaded ?? authorInitialState;
 
-  const store = createStore(
-    (
-      state: { author: AuthorState } = { author: initialAuthor },
-      action: { type: string },
-    ) => ({
-      author: authorReducer(state.author, action),
-    }),
-  );
-
-  return render(
-    <Provider store={store}>
-      <ConfigProvider>
-        <Form>
-          <AuthorFormSubmitButton mode={mode} />
-        </Form>
-      </ConfigProvider>
-    </Provider>,
+  return componentRender(
+    <Form>
+      <AuthorFormSubmitButton mode={mode} />
+    </Form>,
+    {
+      reducers: { author: authorReducer },
+      preloadedState: { author: initialAuthor },
+    },
   );
 }
 
@@ -39,15 +29,17 @@ describe('AuthorFormSubmitButton', () => {
   it('в create показывает «Создать»', () => {
     renderButton('create');
 
-    expect(screen.getByRole('button', { name: 'Создать' })).toBeInTheDocument();
+    expect(screen.getByTestId('authorForm_button_submit')).toHaveTextContent(
+      'Создать',
+    );
   });
 
   it('в edit показывает «Сохранить»', () => {
     renderButton('edit');
 
-    expect(
-      screen.getByRole('button', { name: 'Сохранить' }),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('authorForm_button_submit')).toHaveTextContent(
+      'Сохранить',
+    );
   });
 
   it('ставит loading при submitStatus=loading', () => {
@@ -56,7 +48,7 @@ describe('AuthorFormSubmitButton', () => {
       submitStatus: 'loading',
     });
 
-    expect(screen.getByRole('button', { name: /Создать/ })).toHaveClass(
+    expect(screen.getByTestId('authorForm_button_submit')).toHaveClass(
       'ant-btn-loading',
     );
   });

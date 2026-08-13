@@ -58,7 +58,7 @@ export const TagForm = ({ mode, tagId, initialValues }: TagFormProps) => {
         name="name"
         label="Название"
         rules={tagFormRules.name}
-        testId="tag-name"
+        data-testid="tagForm_input_name"
         placeholder="Название тега"
       />
 
@@ -66,7 +66,7 @@ export const TagForm = ({ mode, tagId, initialValues }: TagFormProps) => {
         name="code"
         label="Код"
         rules={tagFormRules.code}
-        testId="tag-code"
+        data-testid="tagForm_input_code"
         placeholder="tag-code"
       />
 
@@ -74,7 +74,7 @@ export const TagForm = ({ mode, tagId, initialValues }: TagFormProps) => {
         name="sort"
         label="Сортировка"
         rules={tagFormRules.sort}
-        testId="tag-sort"
+        data-testid="tagForm_input_sort"
         className={styles.sortInput}
         placeholder="0"
       />

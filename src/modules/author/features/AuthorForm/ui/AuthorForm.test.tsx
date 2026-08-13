@@ -1,10 +1,8 @@
-import { Provider } from 'react-redux';
-
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ConfigProvider } from 'antd';
-import { legacy_createStore as createStore } from 'redux';
 import { describe, expect, it, vi } from 'vitest';
+
+import { componentRender } from '@/__test__/componentRender';
 
 import { authorActions } from '../../../model/actions';
 import { authorInitialState, authorReducer } from '../../../model/reducer';
@@ -39,30 +37,11 @@ function renderAuthorForm(
 ) {
   const initialAuthor = preloaded ?? authorInitialState;
 
-  const store = createStore(
-    (
-      state: { author: AuthorState } = { author: initialAuthor },
-      action: { type: string },
-    ) => ({
-      author: authorReducer(state.author, action),
-    }),
-  );
-
-  if (dispatchSpy) {
-    const originalDispatch = store.dispatch.bind(store);
-    store.dispatch = ((action: unknown) => {
-      dispatchSpy(action as never);
-      return originalDispatch(action as never);
-    }) as typeof store.dispatch;
-  }
-
-  return render(
-    <Provider store={store}>
-      <ConfigProvider>
-        <AuthorForm {...props} />
-      </ConfigProvider>
-    </Provider>,
-  );
+  return componentRender(<AuthorForm {...props} />, {
+    reducers: { author: authorReducer },
+    preloadedState: { author: initialAuthor },
+    dispatchSpy,
+  });
 }
 
 describe('AuthorForm', () => {
@@ -71,7 +50,9 @@ describe('AuthorForm', () => {
     const dispatchSpy = vi.fn();
     renderAuthorForm({ mode: 'create' }, undefined, dispatchSpy);
 
-    await user.click(screen.getByRole('button', { name: 'Создать' }));
+    const submit = screen.getByTestId('authorForm_button_submit');
+    expect(submit).toHaveTextContent('Создать');
+    await user.click(submit);
 
     await waitFor(() => {
       expect(screen.getByText('Укажите фамилию')).toBeInTheDocument();
@@ -87,12 +68,21 @@ describe('AuthorForm', () => {
     const dispatchSpy = vi.fn();
     renderAuthorForm({ mode: 'create' }, undefined, dispatchSpy);
 
-    await user.type(screen.getByTestId('author-last-name'), 'Иванов');
-    await user.type(screen.getByTestId('author-name'), 'Иван');
-    await user.type(screen.getByTestId('author-second-name'), 'Иванович');
-    await user.type(screen.getByTestId('author-short-description'), 'Кратко');
-    await user.type(screen.getByTestId('author-description'), 'Полное');
-    await user.click(screen.getByRole('button', { name: 'Создать' }));
+    await user.type(screen.getByTestId('authorForm_input_lastName'), 'Иванов');
+    await user.type(screen.getByTestId('authorForm_input_name'), 'Иван');
+    await user.type(
+      screen.getByTestId('authorForm_input_secondName'),
+      'Иванович',
+    );
+    await user.type(
+      screen.getByTestId('authorForm_input_shortDescription'),
+      'Кратко',
+    );
+    await user.type(
+      screen.getByTestId('authorForm_input_description'),
+      'Полное',
+    );
+    await user.click(screen.getByTestId('authorForm_button_submit'));
 
     await waitFor(() => {
       expect(dispatchSpy).toHaveBeenCalledWith(

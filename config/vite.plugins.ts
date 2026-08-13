@@ -2,9 +2,12 @@ import react from '@vitejs/plugin-react';
 import type { PluginOption } from 'vite';
 import checker from 'vite-plugin-checker';
 
+import { stripDataTestId } from './plugins/vite-plugin-strip-data-testid.ts';
+
 export function plugins(isBuild: boolean): PluginOption[] {
   const pluginList: (PluginOption | false | null | undefined)[] = [
     react(),
+    isBuild && stripDataTestId(),
     !isBuild &&
       checker({
         typescript: { tsconfigPath: './tsconfig.app.json' },

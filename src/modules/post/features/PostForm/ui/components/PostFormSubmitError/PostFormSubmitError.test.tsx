@@ -1,9 +1,8 @@
-import { Provider } from 'react-redux';
-
-import { render, screen } from '@testing-library/react';
-import { ConfigProvider, Form } from 'antd';
-import { legacy_createStore as createStore } from 'redux';
+import { screen } from '@testing-library/react';
+import { Form } from 'antd';
 import { describe, expect, it, vi } from 'vitest';
+
+import { componentRender } from '@/__test__/componentRender';
 
 import { postInitialState, postReducer } from '../../../../../model/reducer';
 import type { PostState } from '../../../../../model/types';
@@ -18,23 +17,14 @@ vi.mock('./PostFormSubmitError.styles', () => ({
 function renderError(preloaded?: PostState) {
   const initialPost = preloaded ?? postInitialState;
 
-  const store = createStore(
-    (
-      state: { post: PostState } = { post: initialPost },
-      action: { type: string },
-    ) => ({
-      post: postReducer(state.post, action),
-    }),
-  );
-
-  return render(
-    <Provider store={store}>
-      <ConfigProvider>
-        <Form>
-          <PostFormSubmitError />
-        </Form>
-      </ConfigProvider>
-    </Provider>,
+  return componentRender(
+    <Form>
+      <PostFormSubmitError />
+    </Form>,
+    {
+      reducers: { post: postReducer },
+      preloadedState: { post: initialPost },
+    },
   );
 }
 

@@ -9,8 +9,7 @@ export interface TextAreaFieldProps {
   name?: NamePath;
   label?: ReactNode;
   rules?: Rule[];
-  /** Maps to `data-testid` on the interactive control */
-  testId: string;
+  'data-testid': string;
   'aria-label'?: string;
   placeholder?: string;
   rows?: number;
@@ -42,7 +41,7 @@ export const TextAreaField = ({
   name,
   label,
   rules,
-  testId,
+  'data-testid': testId,
   'aria-label': ariaLabel,
   placeholder,
   rows,

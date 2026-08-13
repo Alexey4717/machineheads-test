@@ -2,12 +2,13 @@ import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
-import { Alert, Button, Form, Select } from 'antd';
+import { Alert, Button } from 'antd';
 import { push } from 'connected-react-router';
 
 import { PATHS } from '@/core/config/router/paths';
 import { useAppDispatch } from '@/core/lib/hooks/useAppDispatch';
 import { withReturnTo } from '@/core/lib/router/parseReturnTo';
+import { SelectField } from '@/core/ui/SelectField/SelectField';
 
 import {
   selectTagListStatus,
@@ -39,24 +40,21 @@ export const PostFormTagIdsField = () => {
 
   return (
     <>
-      <Form.Item
+      <SelectField
         name="tagIds"
         label="Теги"
         rules={postFormRules.tagIds}
-        data-testid="post-tag-ids"
-      >
-        <Select
-          mode="multiple"
-          showSearch={{
-            optionFilterProp: 'label',
-          }}
-          placeholder="Выберите теги"
-          options={options}
-          loading={isLoading}
-          disabled={isLoading}
-          allowClear
-        />
-      </Form.Item>
+        mode="multiple"
+        showSearch={{
+          optionFilterProp: 'label',
+        }}
+        placeholder="Выберите теги"
+        options={options}
+        loading={isLoading}
+        disabled={isLoading}
+        allowClear
+        data-testid="postForm_select_tagIds"
+      />
       {showEmptyAlert && (
         <Alert
           type="warning"
@@ -65,7 +63,12 @@ export const PostFormTagIdsField = () => {
           className={styles.alert}
           data-testid="post-tag-empty-alert"
           action={
-            <Button size="small" type="primary" onClick={onCreateTag}>
+            <Button
+              size="small"
+              type="primary"
+              onClick={onCreateTag}
+              data-testid="postForm_button_onCreateTag"
+            >
               Создать
             </Button>
           }

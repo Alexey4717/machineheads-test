@@ -1,9 +1,10 @@
 import { useState } from 'react';
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ConfigProvider } from 'antd';
 import { describe, expect, it, vi } from 'vitest';
+
+import { componentRender } from '@/__test__/componentRender';
 
 import type { ConfirmModalOptions } from './ConfirmModalContext';
 import { ConfirmModalProvider } from './ConfirmModalProvider';
@@ -32,6 +33,7 @@ const ConfirmHarness = ({
     <div>
       <button
         type="button"
+        data-testid="confirmModal_button_open"
         onClick={async () => {
           const result = await confirm(options);
           setLastResult(result);
@@ -48,12 +50,10 @@ const ConfirmHarness = ({
 };
 
 const renderConfirmModal = (harnessProps?: HarnessProps) => {
-  return render(
-    <ConfigProvider theme={{ token: { motion: false } }}>
-      <ConfirmModalProvider>
-        <ConfirmHarness {...harnessProps} />
-      </ConfirmModalProvider>
-    </ConfigProvider>,
+  return componentRender(
+    <ConfirmModalProvider>
+      <ConfirmHarness {...harnessProps} />
+    </ConfirmModalProvider>,
   );
 };
 
@@ -69,13 +69,17 @@ describe('ConfirmModalProvider', () => {
     const user = userEvent.setup();
     renderConfirmModal();
 
-    await user.click(screen.getByRole('button', { name: 'Открыть confirm' }));
+    await user.click(screen.getByTestId('confirmModal_button_open'));
 
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText('Подтверждение')).toBeInTheDocument();
     expect(screen.getByText('Вы уверены?')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Да' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Нет' })).toBeInTheDocument();
+    expect(
+      screen.getByTestId('confirmModal_button_handleOk'),
+    ).toHaveTextContent('Да');
+    expect(
+      screen.getByTestId('confirmModal_button_handleCancel'),
+    ).toHaveTextContent('Нет');
   });
 
   it('Ok закрывает модалку и резолвит promise в true', async () => {
@@ -83,8 +87,8 @@ describe('ConfirmModalProvider', () => {
     const onResult = vi.fn();
     renderConfirmModal({ onResult });
 
-    await user.click(screen.getByRole('button', { name: 'Открыть confirm' }));
-    await user.click(await screen.findByRole('button', { name: 'Да' }));
+    await user.click(screen.getByTestId('confirmModal_button_open'));
+    await user.click(await screen.findByTestId('confirmModal_button_handleOk'));
 
     await waitFor(() => {
       expect(onResult).toHaveBeenCalledWith(true);
@@ -100,8 +104,10 @@ describe('ConfirmModalProvider', () => {
     const onResult = vi.fn();
     renderConfirmModal({ onResult });
 
-    await user.click(screen.getByRole('button', { name: 'Открыть confirm' }));
-    await user.click(await screen.findByRole('button', { name: 'Нет' }));
+    await user.click(screen.getByTestId('confirmModal_button_open'));
+    await user.click(
+      await screen.findByTestId('confirmModal_button_handleCancel'),
+    );
 
     await waitFor(() => {
       expect(onResult).toHaveBeenCalledWith(false);
@@ -117,10 +123,14 @@ describe('ConfirmModalProvider', () => {
     const onResult = vi.fn();
     renderConfirmModal({ onResult });
 
-    await user.click(screen.getByRole('button', { name: 'Открыть confirm' }));
+    await user.click(screen.getByTestId('confirmModal_button_open'));
     await screen.findByRole('dialog');
 
-    await user.click(screen.getByRole('button', { name: 'Close' }));
+    const closeButton = document.querySelector(
+      '.ant-modal-close',
+    ) as HTMLButtonElement | null;
+    expect(closeButton).toBeTruthy();
+    await user.click(closeButton!);
 
     await waitFor(() => {
       expect(onResult).toHaveBeenCalledWith(false);
@@ -135,8 +145,8 @@ describe('ConfirmModalProvider', () => {
     const onResult = vi.fn();
     renderConfirmModal({ onResult });
 
-    await user.click(screen.getByRole('button', { name: 'Открыть confirm' }));
-    await user.click(await screen.findByRole('button', { name: 'Да' }));
+    await user.click(screen.getByTestId('confirmModal_button_open'));
+    await user.click(await screen.findByTestId('confirmModal_button_handleOk'));
 
     await waitFor(() => {
       expect(onResult).toHaveBeenCalledWith(true);
@@ -145,11 +155,11 @@ describe('ConfirmModalProvider', () => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('button', { name: 'Открыть confirm' }));
+    await user.click(screen.getByTestId('confirmModal_button_open'));
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText('Подтверждение')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Нет' }));
+    await user.click(screen.getByTestId('confirmModal_button_handleCancel'));
 
     await waitFor(() => {
       expect(onResult).toHaveBeenLastCalledWith(false);
@@ -173,14 +183,14 @@ describe('ConfirmModalProvider', () => {
       options: { ...defaultOptions, onOk },
     });
 
-    await user.click(screen.getByRole('button', { name: 'Открыть confirm' }));
-    await user.click(await screen.findByRole('button', { name: 'Да' }));
+    await user.click(screen.getByTestId('confirmModal_button_open'));
+    await user.click(await screen.findByTestId('confirmModal_button_handleOk'));
 
     expect(onOk).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(onResult).not.toHaveBeenCalled();
 
-    const okButton = screen.getByRole('button', { name: /Да/ });
+    const okButton = screen.getByTestId('confirmModal_button_handleOk');
     expect(okButton).toBeDisabled();
     expect(okButton.className).toMatch(/ant-btn-loading/);
 
@@ -204,8 +214,8 @@ describe('ConfirmModalProvider', () => {
       options: { ...defaultOptions, onOk },
     });
 
-    await user.click(screen.getByRole('button', { name: 'Открыть confirm' }));
-    await user.click(await screen.findByRole('button', { name: 'Да' }));
+    await user.click(screen.getByTestId('confirmModal_button_open'));
+    await user.click(await screen.findByTestId('confirmModal_button_handleOk'));
 
     await waitFor(() => {
       expect(onResult).toHaveBeenCalledWith(false);
@@ -223,11 +233,7 @@ describe('useConfirmModal', () => {
       .mockImplementation(() => {});
 
     expect(() => {
-      render(
-        <ConfigProvider>
-          <ConfirmHarness />
-        </ConfigProvider>,
-      );
+      componentRender(<ConfirmHarness />);
     }).toThrow('useConfirmModal must be used within ConfirmModalProvider');
 
     consoleError.mockRestore();

@@ -31,12 +31,10 @@ pnpm dev — запуск frontend в dev режиме
 
 Стек: **Vitest** + Testing Library + `redux-saga-test-plan` (jsdom).
 
-Покрытие сейчас (существующий код):
-
-- Unit: `errorParsers`, cookies, `formRules`, `getPath`, sessionEvents, auth selectors/reducer, `loginRules`, `TextField`, `LoginForm`
-- Integration: auth sagas (login success/failure, logout), apiClient interceptors (Bearer, 401 → logout)
-
-E2E (Playwright) и CRUD-сценарии — после реализации posts/authors/tags.
+- `data-testid` на интерактивных контролах: `<feature>_<type>_<name>` (например `loginForm_input_email`, `postsList_link_POST_DETAIL_1`). Контролы в RTL ищем через `getByTestId` / `findByTestId`, не через role / title / placeholder / label.
+- Общий рендер: `componentRender` / `TestProvider` из `@/__test__/componentRender` (только в `*.test.ts(x)`).
+- В production-сборке `data-testid` вырезается Vite-плагином (`config/plugins/vite-plugin-strip-data-testid.ts`).
+- Playwright (позже) живёт в корневой `e2e/`, не в `src/__test__`.
 
 ```
 pnpm test

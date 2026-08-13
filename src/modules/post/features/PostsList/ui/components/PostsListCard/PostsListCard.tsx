@@ -18,7 +18,7 @@ export const PostsListCard = ({ post }: PostsListCardProps) => {
     <Link
       to={getPath(PATHS.POST_DETAIL, { id: post.id })}
       className={styles.card}
-      data-testid={`posts-list-card-${post.id}`}
+      data-testid={`postsList_link_POST_DETAIL_${post.id}`}
     >
       <span className={styles.cell}>{post.title}</span>
       <span className={styles.cell}>{post.authorName || '—'}</span>

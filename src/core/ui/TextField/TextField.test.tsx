@@ -1,30 +1,36 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Form } from 'antd';
 import { describe, expect, it, vi } from 'vitest';
+
+import { componentRender } from '@/__test__/componentRender';
 
 import { TextField } from './TextField';
 
 describe('TextField', () => {
   it('прокидывает data-testid на интерактивный контрол', () => {
-    render(
+    componentRender(
       <Form>
-        <TextField name="email" label="E-mail" testId="login-email" />
+        <TextField
+          name="email"
+          label="E-mail"
+          data-testid="loginForm_input_email"
+        />
       </Form>,
     );
 
-    expect(screen.getByTestId('login-email')).toBeInTheDocument();
+    expect(screen.getByTestId('loginForm_input_email')).toBeInTheDocument();
   });
 
   it('в режиме без name работает controlled', async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
 
-    render(
+    componentRender(
       <Form layout="vertical" component="div">
         <TextField
           label="Поиск"
-          testId="search"
+          data-testid="search"
           aria-label="Поиск"
           value=""
           onChange={onChange}
@@ -37,18 +43,18 @@ describe('TextField', () => {
   });
 
   it('type=password рендерит password input', () => {
-    const { container } = render(
+    const { container } = componentRender(
       <Form>
         <TextField
           name="password"
           label="Пароль"
           type="password"
-          testId="login-password"
+          data-testid="loginForm_input_password"
         />
       </Form>,
     );
 
-    const input = screen.getByTestId('login-password');
+    const input = screen.getByTestId('loginForm_input_password');
     expect(input).toHaveAttribute('type', 'password');
     expect(container.querySelector('input[type="password"]')).toBeTruthy();
   });

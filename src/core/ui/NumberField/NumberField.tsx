@@ -9,8 +9,7 @@ export interface NumberFieldProps {
   name?: NamePath;
   label?: ReactNode;
   rules?: Rule[];
-  /** Maps to `data-testid` on the interactive control */
-  testId: string;
+  'data-testid': string;
   'aria-label'?: string;
   placeholder?: string;
   disabled?: boolean;
@@ -25,6 +24,7 @@ export interface NumberFieldProps {
     InputNumberProps<number>,
     | 'value'
     | 'onChange'
+    | 'data-testid'
     | 'aria-label'
     | 'placeholder'
     | 'disabled'
@@ -37,7 +37,7 @@ export const NumberField = ({
   name,
   label,
   rules,
-  testId,
+  'data-testid': testId,
   'aria-label': ariaLabel,
   placeholder,
   disabled,

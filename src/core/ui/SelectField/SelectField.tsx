@@ -1,84 +1,70 @@
-import type { ChangeEventHandler, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
-import { Form, Input } from 'antd';
+import { Form, Select } from 'antd';
 import type { FormItemProps, Rule } from 'antd/es/form';
 import type { NamePath } from 'antd/es/form/interface';
-import type { InputProps } from 'antd/es/input';
+import type { DefaultOptionType, SelectProps } from 'antd/es/select';
 
-export type TextFieldType = 'text' | 'password';
-
-export interface TextFieldProps {
+export interface SelectFieldProps {
   name?: NamePath;
   label?: ReactNode;
   rules?: Rule[];
-  /** Default: `text` */
-  type?: TextFieldType;
   'data-testid': string;
   'aria-label'?: string;
   placeholder?: string;
-  autoComplete?: string;
   disabled?: boolean;
+  loading?: boolean;
+  options?: DefaultOptionType[];
   allowClear?: boolean;
-  value?: string;
-  onChange?: ChangeEventHandler<HTMLInputElement>;
+  showSearch?: SelectProps['showSearch'];
+  mode?: SelectProps['mode'];
+  className?: string;
+  value?: SelectProps['value'];
+  onChange?: SelectProps['onChange'];
   help?: FormItemProps['help'];
   extra?: FormItemProps['extra'];
   required?: boolean;
   validateStatus?: FormItemProps['validateStatus'];
-  className?: string;
-  inputProps?: Omit<
-    InputProps,
+  selectProps?: Omit<
+    SelectProps,
     | 'value'
     | 'onChange'
-    | 'type'
     | 'data-testid'
     | 'aria-label'
     | 'placeholder'
-    | 'autoComplete'
     | 'disabled'
+    | 'loading'
+    | 'options'
     | 'allowClear'
+    | 'showSearch'
+    | 'mode'
+    | 'className'
   >;
 }
 
-export const TextField = ({
+export const SelectField = ({
   name,
   label,
   rules,
-  type = 'text',
   'data-testid': testId,
   'aria-label': ariaLabel,
   placeholder,
-  autoComplete,
   disabled,
+  loading,
+  options,
   allowClear,
+  showSearch,
+  mode,
+  className,
   value,
   onChange,
   help,
   extra,
   required,
   validateStatus,
-  className,
-  inputProps,
-}: TextFieldProps) => {
+  selectProps,
+}: SelectFieldProps) => {
   const isFormField = name !== undefined && name !== null;
-
-  const controlProps = {
-    placeholder,
-    autoComplete,
-    disabled,
-    allowClear,
-    'aria-label': ariaLabel,
-    'data-testid': testId,
-    ...inputProps,
-    ...(isFormField ? {} : { value, onChange }),
-  };
-
-  const control =
-    type === 'password' ? (
-      <Input.Password {...controlProps} />
-    ) : (
-      <Input {...controlProps} />
-    );
 
   return (
     <Form.Item
@@ -91,7 +77,19 @@ export const TextField = ({
       validateStatus={validateStatus}
       className={className}
     >
-      {control}
+      <Select
+        placeholder={placeholder}
+        disabled={disabled}
+        loading={loading}
+        options={options}
+        allowClear={allowClear}
+        showSearch={showSearch}
+        mode={mode}
+        aria-label={ariaLabel}
+        data-testid={testId}
+        {...selectProps}
+        {...(isFormField ? {} : { value, onChange })}
+      />
     </Form.Item>
   );
 };

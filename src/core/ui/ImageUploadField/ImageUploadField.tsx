@@ -57,11 +57,11 @@ function getImageFileList(info: UploadChangeParam<UploadFile>): UploadFile[] {
 
 interface ImageUploadControlProps extends Omit<
   UploadProps,
-  'listType' | 'beforeUpload' | 'fileList' | 'children'
+  'listType' | 'beforeUpload' | 'fileList' | 'children' | 'data-testid'
 > {
   fileList?: UploadFile[];
   maxCount: number;
-  testId: string;
+  'data-testid': string;
   className?: string;
 }
 
@@ -73,7 +73,7 @@ interface ImageUploadControlProps extends Omit<
 const ImageUploadControl = ({
   fileList,
   maxCount,
-  testId,
+  'data-testid': testId,
   className,
   disabled,
   accept,
@@ -109,7 +109,7 @@ export interface ImageUploadFieldProps {
   name: NamePath;
   label?: ReactNode;
   rules?: Rule[];
-  testId: string;
+  'data-testid': string;
   tip?: ReactNode;
   accept?: string;
   maxCount?: number;
@@ -135,7 +135,7 @@ export interface ImageUploadFieldProps {
  * @param props.name - Имя поля формы (`NamePath`); значение — `UploadFile[]`.
  * @param props.label - Подпись `Form.Item`.
  * @param props.rules - Правила валидации antd Form.
- * @param props.testId - Атрибут `data-testid` на `Upload` (обязателен).
+ * @param props.data-testid - Атрибут `data-testid` на `Upload` (обязателен).
  * @param props.tip - Подсказка под полем (styled tip). Если задан `extra`,
  *   используется `extra` вместо `tip`.
  * @param props.accept - MIME / extension filter для `Upload`; по умолчанию `image/*`.
@@ -167,7 +167,7 @@ export interface ImageUploadFieldProps {
  * <ImageUploadField
  *   name="avatar"
  *   label="Аватар"
- *   testId="author-avatar"
+ *   data-testid="authorForm_upload_avatar"
  *   tip="JPG/PNG, один файл"
  *   removeFlagName="removeAvatar"
  * />
@@ -179,7 +179,7 @@ export interface ImageUploadFieldProps {
  * <ImageUploadField
  *   name="previewPicture"
  *   label="Превью"
- *   testId="post-preview-picture"
+ *   data-testid="postForm_upload_previewPicture"
  *   tip="JPG/PNG, один файл"
  * />
  * ```
@@ -188,7 +188,7 @@ export const ImageUploadField = ({
   name,
   label,
   rules,
-  testId,
+  'data-testid': testId,
   tip,
   accept = 'image/*',
   maxCount = 1,
@@ -254,7 +254,7 @@ export const ImageUploadField = ({
         accept={accept}
         maxCount={maxCount}
         disabled={disabled}
-        testId={testId}
+        data-testid={testId}
         className={styles.upload}
         onChange={
           removeFlagName != null

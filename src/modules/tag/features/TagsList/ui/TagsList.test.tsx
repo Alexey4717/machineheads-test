@@ -1,10 +1,7 @@
-import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
-
-import { render, screen } from '@testing-library/react';
-import { ConfigProvider } from 'antd';
-import { legacy_createStore as createStore } from 'redux';
+import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+
+import { componentRender } from '@/__test__/componentRender';
 
 import { tagInitialState, tagReducer } from '../../../model/reducer';
 import type { Tag, TagState } from '../../../model/types';
@@ -55,24 +52,10 @@ const tag: Tag = {
 function renderTagsList(preloaded?: TagState) {
   const initialTag = preloaded ?? tagInitialState;
 
-  const store = createStore(
-    (
-      state: { tag: TagState } = { tag: initialTag },
-      action: { type: string },
-    ) => ({
-      tag: tagReducer(state.tag, action),
-    }),
-  );
-
-  return render(
-    <Provider store={store}>
-      <MemoryRouter>
-        <ConfigProvider>
-          <TagsList />
-        </ConfigProvider>
-      </MemoryRouter>
-    </Provider>,
-  );
+  return componentRender(<TagsList />, {
+    reducers: { tag: tagReducer },
+    preloadedState: { tag: initialTag },
+  });
 }
 
 describe('TagsList', () => {
@@ -91,8 +74,10 @@ describe('TagsList', () => {
     });
 
     expect(screen.getByTestId('tags-list')).toBeInTheDocument();
-    expect(screen.getByTestId('tags-list-card-1')).toHaveTextContent('Новости');
-    expect(screen.getByTestId('tags-list-card-1')).toHaveAttribute(
+    expect(screen.getByTestId('tagsList_link_TAG_DETAIL_1')).toHaveTextContent(
+      'Новости',
+    );
+    expect(screen.getByTestId('tagsList_link_TAG_DETAIL_1')).toHaveAttribute(
       'href',
       '/tags/1',
     );

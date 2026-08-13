@@ -18,7 +18,7 @@ export const TagsListCard = ({ tag }: TagsListCardProps) => {
     <Link
       to={getPath(PATHS.TAG_DETAIL, { id: tag.id })}
       className={styles.card}
-      data-testid={`tags-list-card-${tag.id}`}
+      data-testid={`tagsList_link_TAG_DETAIL_${tag.id}`}
     >
       <span className={styles.cell}>{tag.name}</span>
       <span className={styles.cell}>{tag.code}</span>

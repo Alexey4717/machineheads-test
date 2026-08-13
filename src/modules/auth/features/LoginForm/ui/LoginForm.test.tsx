@@ -1,10 +1,8 @@
-import { Provider } from 'react-redux';
-
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ConfigProvider } from 'antd';
-import { legacy_createStore as createStore } from 'redux';
 import { describe, expect, it, vi } from 'vitest';
+
+import { componentRender } from '@/__test__/componentRender';
 
 import { authActions } from '../../../model/actions';
 import { authReducer } from '../../../model/reducer';
@@ -27,30 +25,11 @@ function renderLoginForm(
     error: null,
   };
 
-  const store = createStore(
-    (
-      state: { auth: AuthState } = { auth: initialAuth },
-      action: { type: string },
-    ) => ({
-      auth: authReducer(state.auth, action),
-    }),
-  );
-
-  if (dispatchSpy) {
-    const originalDispatch = store.dispatch.bind(store);
-    store.dispatch = ((action: unknown) => {
-      dispatchSpy(action as never);
-      return originalDispatch(action as never);
-    }) as typeof store.dispatch;
-  }
-
-  return render(
-    <Provider store={store}>
-      <ConfigProvider>
-        <LoginForm />
-      </ConfigProvider>
-    </Provider>,
-  );
+  return componentRender(<LoginForm />, {
+    reducers: { auth: authReducer },
+    preloadedState: { auth: initialAuth },
+    dispatchSpy,
+  });
 }
 
 describe('LoginForm', () => {
@@ -59,7 +38,7 @@ describe('LoginForm', () => {
     const dispatchSpy = vi.fn();
     renderLoginForm(undefined, dispatchSpy);
 
-    await user.click(screen.getByRole('button', { name: 'Войти' }));
+    await user.click(screen.getByTestId('loginForm_button_submit'));
 
     await waitFor(() => {
       expect(screen.getByText('Укажите e-mail')).toBeInTheDocument();
@@ -75,9 +54,12 @@ describe('LoginForm', () => {
     const dispatchSpy = vi.fn();
     renderLoginForm(undefined, dispatchSpy);
 
-    await user.type(screen.getByTestId('login-email'), 'test@test.ru');
-    await user.type(screen.getByTestId('login-password'), 'secret');
-    await user.click(screen.getByRole('button', { name: 'Войти' }));
+    await user.type(
+      screen.getByTestId('loginForm_input_email'),
+      'test@test.ru',
+    );
+    await user.type(screen.getByTestId('loginForm_input_password'), 'secret');
+    await user.click(screen.getByTestId('loginForm_button_submit'));
 
     await waitFor(() => {
       expect(dispatchSpy).toHaveBeenCalledWith(

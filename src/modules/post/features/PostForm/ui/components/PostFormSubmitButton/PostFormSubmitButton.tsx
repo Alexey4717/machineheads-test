@@ -13,7 +13,12 @@ export const PostFormSubmitButton = ({ mode }: PostFormSubmitButtonProps) => {
 
   return (
     <Form.Item>
-      <Button type="primary" htmlType="submit" loading={isSubmitting}>
+      <Button
+        type="primary"
+        htmlType="submit"
+        loading={isSubmitting}
+        data-testid="postForm_button_submit"
+      >
         {mode === 'edit' ? 'Сохранить' : 'Создать'}
       </Button>
     </Form.Item>

@@ -2,12 +2,13 @@ import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
-import { Alert, Button, Form, Select } from 'antd';
+import { Alert, Button } from 'antd';
 import { push } from 'connected-react-router';
 
 import { PATHS } from '@/core/config/router/paths';
 import { useAppDispatch } from '@/core/lib/hooks/useAppDispatch';
 import { withReturnTo } from '@/core/lib/router/parseReturnTo';
+import { SelectField } from '@/core/ui/SelectField/SelectField';
 
 import {
   authorActions,
@@ -39,23 +40,20 @@ export const PostFormAuthorField = () => {
 
   return (
     <>
-      <Form.Item
+      <SelectField
         name="authorId"
         label="Автор"
         rules={postFormRules.authorId}
-        data-testid="post-author-id"
-      >
-        <Select
-          showSearch={{
-            optionFilterProp: 'label',
-          }}
-          placeholder="Выберите автора"
-          options={options}
-          loading={isLoading}
-          disabled={isLoading}
-          allowClear
-        />
-      </Form.Item>
+        showSearch={{
+          optionFilterProp: 'label',
+        }}
+        placeholder="Выберите автора"
+        options={options}
+        loading={isLoading}
+        disabled={isLoading}
+        allowClear
+        data-testid="postForm_select_authorId"
+      />
       {showEmptyAlert && (
         <Alert
           type="warning"
@@ -64,7 +62,12 @@ export const PostFormAuthorField = () => {
           className={styles.alert}
           data-testid="post-author-empty-alert"
           action={
-            <Button size="small" type="primary" onClick={onCreateAuthor}>
+            <Button
+              size="small"
+              type="primary"
+              onClick={onCreateAuthor}
+              data-testid="postForm_button_onCreateAuthor"
+            >
               Создать
             </Button>
           }

@@ -13,7 +13,12 @@ export const TagFormSubmitButton = ({ mode }: TagFormSubmitButtonProps) => {
 
   return (
     <Form.Item>
-      <Button type="primary" htmlType="submit" loading={isSubmitting}>
+      <Button
+        type="primary"
+        htmlType="submit"
+        loading={isSubmitting}
+        data-testid="tagForm_button_submit"
+      >
         {mode === 'edit' ? 'Сохранить' : 'Создать'}
       </Button>
     </Form.Item>

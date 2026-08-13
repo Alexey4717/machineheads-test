@@ -1,10 +1,7 @@
-import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
-
-import { render, screen } from '@testing-library/react';
-import { ConfigProvider } from 'antd';
-import { legacy_createStore as createStore } from 'redux';
+import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+
+import { componentRender } from '@/__test__/componentRender';
 
 import { postInitialState, postReducer } from '../../../model/reducer';
 import type { Post, PostState } from '../../../model/types';
@@ -65,24 +62,10 @@ const post: Post = {
 function renderPostsList(preloaded?: PostState) {
   const initialPost = preloaded ?? postInitialState;
 
-  const store = createStore(
-    (
-      state: { post: PostState } = { post: initialPost },
-      action: { type: string },
-    ) => ({
-      post: postReducer(state.post, action),
-    }),
-  );
-
-  return render(
-    <Provider store={store}>
-      <MemoryRouter>
-        <ConfigProvider>
-          <PostsList />
-        </ConfigProvider>
-      </MemoryRouter>
-    </Provider>,
-  );
+  return componentRender(<PostsList />, {
+    reducers: { post: postReducer },
+    preloadedState: { post: initialPost },
+  });
 }
 
 describe('PostsList', () => {
@@ -107,16 +90,16 @@ describe('PostsList', () => {
     });
 
     expect(screen.getByTestId('posts-list')).toBeInTheDocument();
-    expect(screen.getByTestId('posts-list-card-1')).toHaveTextContent(
-      'Заголовок',
-    );
-    expect(screen.getByTestId('posts-list-card-1')).toHaveTextContent(
-      'Иванов Иван',
-    );
-    expect(screen.getByTestId('posts-list-card-1')).toHaveTextContent(
-      'news, tech',
-    );
-    expect(screen.getByTestId('posts-list-card-1')).toHaveAttribute(
+    expect(
+      screen.getByTestId('postsList_link_POST_DETAIL_1'),
+    ).toHaveTextContent('Заголовок');
+    expect(
+      screen.getByTestId('postsList_link_POST_DETAIL_1'),
+    ).toHaveTextContent('Иванов Иван');
+    expect(
+      screen.getByTestId('postsList_link_POST_DETAIL_1'),
+    ).toHaveTextContent('news, tech');
+    expect(screen.getByTestId('postsList_link_POST_DETAIL_1')).toHaveAttribute(
       'href',
       '/posts/1',
     );

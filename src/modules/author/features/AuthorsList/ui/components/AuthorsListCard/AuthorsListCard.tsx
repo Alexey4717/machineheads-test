@@ -19,7 +19,7 @@ export const AuthorsListCard = ({ author }: AuthorsListCardProps) => {
     <Link
       to={getPath(PATHS.AUTHOR_DETAIL, { id: author.id })}
       className={styles.card}
-      data-testid={`authors-list-card-${author.id}`}
+      data-testid={`authorsList_link_AUTHOR_DETAIL_${author.id}`}
     >
       <span className={styles.cell}>{formatAuthorName(author)}</span>
       <span className={styles.cell}>{formatDate(author.updatedAt)}</span>

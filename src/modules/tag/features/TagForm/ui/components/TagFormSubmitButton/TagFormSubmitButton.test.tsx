@@ -1,9 +1,8 @@
-import { Provider } from 'react-redux';
-
-import { render, screen } from '@testing-library/react';
-import { ConfigProvider, Form } from 'antd';
-import { legacy_createStore as createStore } from 'redux';
+import { screen } from '@testing-library/react';
+import { Form } from 'antd';
 import { describe, expect, it } from 'vitest';
+
+import { componentRender } from '@/__test__/componentRender';
 
 import { tagInitialState, tagReducer } from '../../../../../model/reducer';
 import type { TagState } from '../../../../../model/types';
@@ -12,23 +11,14 @@ import { TagFormSubmitButton } from './TagFormSubmitButton';
 function renderButton(mode: 'create' | 'edit', preloaded?: TagState) {
   const initialTag = preloaded ?? tagInitialState;
 
-  const store = createStore(
-    (
-      state: { tag: TagState } = { tag: initialTag },
-      action: { type: string },
-    ) => ({
-      tag: tagReducer(state.tag, action),
-    }),
-  );
-
-  return render(
-    <Provider store={store}>
-      <ConfigProvider>
-        <Form>
-          <TagFormSubmitButton mode={mode} />
-        </Form>
-      </ConfigProvider>
-    </Provider>,
+  return componentRender(
+    <Form>
+      <TagFormSubmitButton mode={mode} />
+    </Form>,
+    {
+      reducers: { tag: tagReducer },
+      preloadedState: { tag: initialTag },
+    },
   );
 }
 
@@ -36,15 +26,17 @@ describe('TagFormSubmitButton', () => {
   it('в create показывает «Создать»', () => {
     renderButton('create');
 
-    expect(screen.getByRole('button', { name: 'Создать' })).toBeInTheDocument();
+    expect(screen.getByTestId('tagForm_button_submit')).toHaveTextContent(
+      'Создать',
+    );
   });
 
   it('в edit показывает «Сохранить»', () => {
     renderButton('edit');
 
-    expect(
-      screen.getByRole('button', { name: 'Сохранить' }),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('tagForm_button_submit')).toHaveTextContent(
+      'Сохранить',
+    );
   });
 
   it('ставит loading при submitStatus=loading', () => {
@@ -53,7 +45,7 @@ describe('TagFormSubmitButton', () => {
       submitStatus: 'loading',
     });
 
-    expect(screen.getByRole('button', { name: /Создать/ })).toHaveClass(
+    expect(screen.getByTestId('tagForm_button_submit')).toHaveClass(
       'ant-btn-loading',
     );
   });

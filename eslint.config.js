@@ -35,6 +35,14 @@ const restrictedModuleDeepPatterns = [
   },
 ];
 
+/** RTL-хелперы живут в src/__test__; из прод-кода слоёв импортировать нельзя. */
+const restrictedTestUtilsPatterns = [
+  {
+    group: ['@/__test__', '@/__test__/**'],
+    message: 'Импорт @/__test__ разрешён только из *.test.ts / *.test.tsx.',
+  },
+];
+
 /**
  * Порядок импортов задаётся только в prettier.config.mjs (@trivago/prettier-plugin-sort-imports).
  * eslint-plugin-prettier прогоняет Prettier как правило ESLint.
@@ -85,7 +93,10 @@ export default defineConfig([
       'boundaries/include': ['**/src/**/*'],
       'boundaries/ignore': ['**/src/vite-env.d.ts'],
       // main.tsx — file category (один файл нельзя надёжно описать folder-element без deprecated mode)
-      'boundaries/files': [{ pattern: '**/src/main.tsx', category: 'main' }],
+      'boundaries/files': [
+        { pattern: '**/src/main.tsx', category: 'main' },
+        { pattern: '**/*.{test,spec}.{ts,tsx}', category: 'test' },
+      ],
       'boundaries/elements': [
         {
           type: 'module',
@@ -101,6 +112,11 @@ export default defineConfig([
         {
           type: 'core',
           pattern: '**/src/core',
+          partialMatch: false,
+        },
+        {
+          type: 'testUtils',
+          pattern: '**/src/__test__',
           partialMatch: false,
         },
       ],
@@ -193,6 +209,14 @@ export default defineConfig([
               message:
                 'main.tsx может импортировать только из app (@/app/...), не из core/modules.',
             },
+            {
+              from: { file: { categories: 'test' } },
+              allow: {
+                to: { element: { type: 'testUtils' } },
+              },
+              message:
+                'Тесты (*.test.ts / *.test.tsx) могут импортировать хелперы из src/__test__.',
+            },
           ],
         },
       ],
@@ -218,6 +242,7 @@ export default defineConfig([
               message:
                 'Слой core не может импортировать modules — только core (+ npm).',
             },
+            ...restrictedTestUtilsPatterns,
           ],
         },
       ],
@@ -237,6 +262,22 @@ export default defineConfig([
                 'Модуль не может импортировать app — только core и public API других modules.',
             },
             ...restrictedModuleDeepPatterns,
+            ...restrictedTestUtilsPatterns,
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/app/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: restrictedBarrelPaths,
+          patterns: [
+            ...restrictedModuleDeepPatterns,
+            ...restrictedTestUtilsPatterns,
           ],
         },
       ],
@@ -260,6 +301,63 @@ export default defineConfig([
                 'main.tsx может импортировать только из app (@/app/...), не из modules.',
             },
           ],
+        },
+      ],
+    },
+  },
+
+  // Тесты: слойные запреты те же, но @/__test__ разрешён.
+  // src/__test__ сам слойных правил не имеет.
+  {
+    files: ['src/core/**/*.{test,spec}.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: restrictedBarrelPaths,
+          patterns: [
+            {
+              group: ['@/app', '@/app/**'],
+              message:
+                'Слой core не может импортировать app — только core (+ npm).',
+            },
+            {
+              group: ['@/modules', '@/modules/**'],
+              message:
+                'Слой core не может импортировать modules — только core (+ npm).',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/modules/**/*.{test,spec}.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: restrictedBarrelPaths,
+          patterns: [
+            {
+              group: ['@/app', '@/app/**'],
+              message:
+                'Модуль не может импортировать app — только core и public API других modules.',
+            },
+            ...restrictedModuleDeepPatterns,
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/app/**/*.{test,spec}.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: restrictedBarrelPaths,
+          patterns: [...restrictedModuleDeepPatterns],
         },
       ],
     },

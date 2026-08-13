@@ -47,7 +47,7 @@ export const LoginForm = () => {
         name="email"
         label="E-mail"
         rules={loginRules.email}
-        testId="login-email"
+        data-testid="loginForm_input_email"
         autoComplete="email"
         placeholder="email@example.com"
       />
@@ -57,13 +57,19 @@ export const LoginForm = () => {
         label="Пароль"
         type="password"
         rules={loginRules.password}
-        testId="login-password"
+        data-testid="loginForm_input_password"
         autoComplete="current-password"
         placeholder="Пароль"
       />
 
       <Form.Item>
-        <Button type="primary" htmlType="submit" block loading={isSubmitting}>
+        <Button
+          type="primary"
+          htmlType="submit"
+          block
+          loading={isSubmitting}
+          data-testid="loginForm_button_submit"
+        >
           Войти
         </Button>
       </Form.Item>

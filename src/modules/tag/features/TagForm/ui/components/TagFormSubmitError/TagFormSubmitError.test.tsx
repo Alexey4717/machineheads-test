@@ -1,9 +1,10 @@
-import { Provider } from 'react-redux';
-
-import { render, screen, waitFor } from '@testing-library/react';
-import { ConfigProvider, Form } from 'antd';
-import { legacy_createStore as createStore } from 'redux';
+import { screen, waitFor } from '@testing-library/react';
+import { Form } from 'antd';
 import { describe, expect, it, vi } from 'vitest';
+
+import { componentRender } from '@/__test__/componentRender';
+
+import { TextField } from '@/core/ui/TextField/TextField';
 
 import { tagInitialState, tagReducer } from '../../../../../model/reducer';
 import type { TagState } from '../../../../../model/types';
@@ -18,26 +19,15 @@ vi.mock('./TagFormSubmitError.styles', () => ({
 function renderWithStore(preloaded?: TagState) {
   const initialTag = preloaded ?? tagInitialState;
 
-  const store = createStore(
-    (
-      state: { tag: TagState } = { tag: initialTag },
-      action: { type: string },
-    ) => ({
-      tag: tagReducer(state.tag, action),
-    }),
-  );
-
-  return render(
-    <Provider store={store}>
-      <ConfigProvider>
-        <Form>
-          <TagFormSubmitError />
-          <Form.Item name="name">
-            <input data-testid="name-field" />
-          </Form.Item>
-        </Form>
-      </ConfigProvider>
-    </Provider>,
+  return componentRender(
+    <Form>
+      <TagFormSubmitError />
+      <TextField name="name" data-testid="tagForm_input_name" />
+    </Form>,
+    {
+      reducers: { tag: tagReducer },
+      preloadedState: { tag: initialTag },
+    },
   );
 }
 

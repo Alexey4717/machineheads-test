@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Form } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import type { UploadFile } from 'antd/es/upload/interface';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
+import { componentRender } from '@/__test__/componentRender';
 
 import { ImageUploadField } from './ImageUploadField';
 
@@ -45,7 +47,7 @@ const RemoveFlagHarness = ({ onReady }: HarnessProps) => {
       <ImageUploadField
         name="avatar"
         label="Аватар"
-        testId="author-avatar"
+        data-testid="authorForm_upload_avatar"
         removeFlagName="removeAvatar"
       />
     </Form>
@@ -65,7 +67,11 @@ const SelectFileHarness = ({ onReady }: HarnessProps) => {
       layout="vertical"
       initialValues={{ avatar: [] as UploadFile[] }}
     >
-      <ImageUploadField name="avatar" label="Аватар" testId="author-avatar" />
+      <ImageUploadField
+        name="avatar"
+        label="Аватар"
+        data-testid="authorForm_upload_avatar"
+      />
     </Form>
   );
 };
@@ -76,18 +82,18 @@ describe('ImageUploadField', () => {
   });
 
   it('прокидывает data-testid на Upload', () => {
-    render(
+    componentRender(
       <Form>
         <ImageUploadField
           name="avatar"
           label="Аватар"
-          testId="author-avatar"
+          data-testid="authorForm_upload_avatar"
           tip="JPG/PNG, один файл"
         />
       </Form>,
     );
 
-    expect(screen.getByTestId('author-avatar')).toBeInTheDocument();
+    expect(screen.getByTestId('authorForm_upload_avatar')).toBeInTheDocument();
     expect(screen.getByText('JPG/PNG, один файл')).toBeInTheDocument();
   });
 
@@ -95,7 +101,7 @@ describe('ImageUploadField', () => {
     const user = userEvent.setup();
     let form: FormInstance | undefined;
 
-    const { container } = render(
+    const { container } = componentRender(
       <RemoveFlagHarness
         onReady={(instance) => {
           form = instance;
@@ -130,7 +136,7 @@ describe('ImageUploadField', () => {
 
     let form: FormInstance | undefined;
 
-    const { container } = render(
+    const { container } = componentRender(
       <SelectFileHarness
         onReady={(instance) => {
           form = instance;
