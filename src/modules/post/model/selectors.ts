@@ -1,59 +1,91 @@
-import type { Post, PostState } from './types';
+import { createSelector } from 'reselect';
 
-interface StateWithPost {
-  post: PostState;
-}
+import type { Post } from './types';
 
-export const selectPostState = (state: StateWithPost) => state.post;
+export const selectPostState = (state: RootState) => state.post;
 
-export const selectPostEntities = (state: StateWithPost) => state.post.entities;
+export const selectPostEntities = createSelector(
+  selectPostState,
+  (post) => post.entities,
+);
 
-export const selectPostListIds = (state: StateWithPost) => state.post.listIds;
+export const selectPostListIds = createSelector(
+  selectPostState,
+  (post) => post.listIds,
+);
 
-export const selectPostList = (state: StateWithPost): Post[] =>
-  state.post.listIds
-    .map((id) => state.post.entities[id])
-    .filter((post): post is Post => Boolean(post));
+export const selectPostList = createSelector(
+  [selectPostListIds, selectPostEntities],
+  (listIds, entities): Post[] =>
+    listIds
+      .map((id) => entities[id])
+      .filter((post): post is Post => Boolean(post)),
+);
 
-export const selectPostById =
-  (id: number | null | undefined) =>
-  (state: StateWithPost): Post | undefined =>
-    id == null ? undefined : state.post.entities[id];
+export const selectPostById = (id: number | null | undefined) =>
+  createSelector(selectPostEntities, (entities): Post | undefined =>
+    id == null ? undefined : entities[id],
+  );
 
-export const selectCurrentPost = (state: StateWithPost): Post | undefined => {
-  const id = state.post.currentDetailId;
-  return id == null ? undefined : state.post.entities[id];
-};
+export const selectCurrentPost = createSelector(
+  selectPostState,
+  (post): Post | undefined => {
+    const id = post.currentDetailId;
+    return id == null ? undefined : post.entities[id];
+  },
+);
 
-export const selectPostPagination = (state: StateWithPost) =>
-  state.post.pagination;
+export const selectPostPagination = createSelector(
+  selectPostState,
+  (post) => post.pagination,
+);
 
-export const selectPostListStatus = (state: StateWithPost) =>
-  state.post.listStatus;
+export const selectPostListStatus = createSelector(
+  selectPostState,
+  (post) => post.listStatus,
+);
 
-export const selectPostListError = (state: StateWithPost) =>
-  state.post.listError;
+export const selectPostListError = createSelector(
+  selectPostState,
+  (post) => post.listError,
+);
 
-export const selectPostDetailStatus = (state: StateWithPost) =>
-  state.post.detailStatus;
+export const selectPostDetailStatus = createSelector(
+  selectPostState,
+  (post) => post.detailStatus,
+);
 
-export const selectPostDetailError = (state: StateWithPost) =>
-  state.post.detailError;
+export const selectPostDetailError = createSelector(
+  selectPostState,
+  (post) => post.detailError,
+);
 
-export const selectPostSubmitStatus = (state: StateWithPost) =>
-  state.post.submitStatus;
+export const selectPostSubmitStatus = createSelector(
+  selectPostState,
+  (post) => post.submitStatus,
+);
 
-export const selectPostSubmitError = (state: StateWithPost) =>
-  state.post.submitError;
+export const selectPostSubmitError = createSelector(
+  selectPostState,
+  (post) => post.submitError,
+);
 
-export const selectPostRemoveStatus = (state: StateWithPost) =>
-  state.post.removeStatus;
+export const selectPostRemoveStatus = createSelector(
+  selectPostState,
+  (post) => post.removeStatus,
+);
 
-export const selectPostRemoveError = (state: StateWithPost) =>
-  state.post.removeError;
+export const selectPostRemoveError = createSelector(
+  selectPostState,
+  (post) => post.removeError,
+);
 
-export const selectPostIsSubmitting = (state: StateWithPost) =>
-  state.post.submitStatus === 'loading';
+export const selectPostIsSubmitting = createSelector(
+  selectPostSubmitStatus,
+  (submitStatus) => submitStatus === 'loading',
+);
 
-export const selectPostIsRemoving = (state: StateWithPost) =>
-  state.post.removeStatus === 'loading';
+export const selectPostIsRemoving = createSelector(
+  selectPostRemoveStatus,
+  (removeStatus) => removeStatus === 'loading',
+);

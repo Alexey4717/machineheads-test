@@ -42,7 +42,7 @@ const state = {
     removeStatus: 'idle',
     removeError: null,
   } satisfies AuthorState,
-};
+} as unknown as RootState;
 
 describe('author selectors', () => {
   it('selectAuthorState возвращает slice', () => {

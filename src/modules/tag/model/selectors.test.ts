@@ -40,7 +40,7 @@ const state = {
     removeStatus: 'idle',
     removeError: null,
   } satisfies TagState,
-};
+} as unknown as RootState;
 
 describe('tag selectors', () => {
   it('selectTagState возвращает slice', () => {

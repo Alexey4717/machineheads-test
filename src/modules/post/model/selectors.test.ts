@@ -52,7 +52,7 @@ const state = {
     removeStatus: 'idle',
     removeError: null,
   } satisfies PostState,
-};
+} as unknown as RootState;
 
 describe('post selectors', () => {
   it('selectPostState возвращает slice', () => {

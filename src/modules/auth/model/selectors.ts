@@ -1,12 +1,18 @@
-import type { AuthState } from './types';
+import { createSelector } from 'reselect';
 
-interface StateWithAuth {
-  auth: AuthState;
-}
+export const selectAuthState = (state: RootState) => state.auth;
 
-export const selectAuthState = (state: StateWithAuth) => state.auth;
-export const selectIsAuthenticated = (state: StateWithAuth) =>
-  state.auth.isAuthenticated;
-export const selectAuthIsSubmitting = (state: StateWithAuth) =>
-  state.auth.isSubmitting;
-export const selectAuthError = (state: StateWithAuth) => state.auth.error;
+export const selectIsAuthenticated = createSelector(
+  selectAuthState,
+  (auth) => auth.isAuthenticated,
+);
+
+export const selectAuthIsSubmitting = createSelector(
+  selectAuthState,
+  (auth) => auth.isSubmitting,
+);
+
+export const selectAuthError = createSelector(
+  selectAuthState,
+  (auth) => auth.error,
+);

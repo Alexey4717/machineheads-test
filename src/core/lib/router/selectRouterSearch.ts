@@ -1,3 +1,9 @@
+import { createSelector } from 'reselect';
+
+export const selectRouterState = (state: RootState) => state.router;
+
 /** Search-строка из connected-react-router. */
-export const selectRouterSearch = (state: RootState): string =>
-  state.router.location.search;
+export const selectRouterSearch = createSelector(
+  selectRouterState,
+  (router): string => router.location.search,
+);

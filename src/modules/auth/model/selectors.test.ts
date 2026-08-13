@@ -14,7 +14,7 @@ const state = {
     isSubmitting: true,
     error: { kind: 'unknown', message: 'fail' },
   } satisfies AuthState,
-};
+} as unknown as RootState;
 
 describe('auth selectors', () => {
   it('selectAuthState возвращает slice', () => {
