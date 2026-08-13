@@ -149,6 +149,7 @@ jobs:
             "version": 3,
             "routes": [
               { "handle": "filesystem" },
+              { "src": "/api/(.*)", "dest": "https://rest-test.machineheads.ru/$1" },
               { "src": "/(.*)", "dest": "/index.html" }
             ]
           }

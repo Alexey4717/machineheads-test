@@ -21,8 +21,9 @@ pnpm install
 pnpm dev
 ```
 
-В dev-режиме запросы на `/api` проксируются на `rest-test.machineheads.ru`. При
-необходимости скопируйте `.env.example` в `.env`.
+Запросы идут на `/api` (same-origin). В dev Vite проксирует их на
+`rest-test.machineheads.ru`, в проде на Vercel — rewrite в Build Output API.
+При необходимости скопируйте `.env.example` в `.env`.
 
 ## Что сделано
 
