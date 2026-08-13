@@ -1,139 +1,49 @@
-## Запуск проекта
+# Тестовое задание для Machineheads: админ-панель на React
 
-```
-Версия pnpm — 11.9.0
-Версия node — 22+
-pnpm install — устанавливаем зависимости
-pnpm dev — запуск frontend в dev режиме
-```
+Админ-панель для управления постами, авторами и тегами.
 
-Скопируйте `.env.example` в `.env` при необходимости. В dev API ходит через proxy `/api` → `rest-test.machineheads.ru`.
+## Демо-доступ
 
----
+Тестовые креды для входа в приложение:
 
-## Скрипты
+- **E-mail:** `test@test.ru`
+- **Password:** `khro2ij3n2730`
 
-- `pnpm dev` — Vite dev server
-- `pnpm build` — typecheck + production build
-- `pnpm preview` — превью production-сборки
-- `pnpm typecheck` — проверка TypeScript
-- `pnpm lint` — ESLint
-- `pnpm lint:fix` — ESLint с автофиксом
-- `pnpm format` — Prettier
-- `pnpm format:check` — проверка Prettier
-- `pnpm test` — unit + integration (Vitest)
-- `pnpm test:watch` — Vitest в watch-режиме
-- `pnpm test:e2e` — Playwright e2e (нужна сборка `E2E=1 pnpm build`)
-- `pnpm test:e2e:ui` — Playwright UI-режим (хост `127.0.0.1`, не IPv6 `::1`)
-- `pnpm prepare` — husky hooks
+- [API](https://rest-test.machineheads.ru/)
+- [Документация](https://rest-test.machineheads.ru/documentation)
 
----
+## Как запустить
 
-## Тесты
+Нужны Node 22+ и pnpm 11.9.0.
 
-Стек: **Vitest** + Testing Library + `redux-saga-test-plan` (jsdom).
-
-- `data-testid` на интерактивных контролах: `<feature>_<type>_<name>` (например `loginForm_input_email`, `postsList_link_POST_DETAIL_1`). Контролы в RTL ищем через `getByTestId` / `findByTestId`, не через role / title / placeholder / label.
-- Общий рендер: `componentRender` / `TestProvider` из `@/__test__/componentRender` (только в `*.test.ts(x)`).
-- В production-сборке `data-testid` вырезается Vite-плагином (`config/plugins/vite-plugin-strip-data-testid.ts`). Для e2e-сборки плагин отключается (`E2E=1 pnpm build`).
-- Playwright живёт в корневой `e2e/` (не в `src/__test__`), ходит в моки `page.route`, без живого API. В CI — отдельный job `e2e`.
-
-```
-pnpm test
-E2E=1 pnpm build && pnpm test:e2e
+```bash
+pnpm install
+pnpm dev
 ```
 
----
+В dev-режиме запросы на `/api` проксируются на `rest-test.machineheads.ru`. При
+необходимости скопируйте `.env.example` в `.env`.
 
-## Архитектура проекта
+## Что сделано
 
-Упрощённая модульная схема: `app` / `modules` / `core`.
+- **Auth:** логин и логаут, JWT в cookies, refresh при 401, защита маршрутов.
+- **Посты:** список с пагинацией из заголовков ответа (`X-Pagination-*`), полный
+  CRUD, ошибки 422 по полям и системные ошибки в форме.
+- **Авторы и теги:** полный CRUD.
+- Обязательный стек задания плюс Ant Design, ленивые страницы и
+  `redux-dynamic-modules`.
+- **Тесты:** Vitest и Playwright, CI.
+- **UX:** светлая и тёмная тема, сайдбар, модалки подтверждения, a11y.
 
-- `app` — композиция приложения (providers, router, store, layouts, themes)
-- `modules` — домены `auth`, `post`, `author`, `tag` (api, model, features, pages, module.ts)
-- `core` — общий слой (axios, cookies, ui, config)
+## Стек
 
-Внутри `features/` и `pages/` у каждой сущности разделы:
+react, redux, redux-saga, react-router-dom, connected-react-router, TypeScript,
+antd, redux-dynamic-modules.
 
-- `ui/` — только TSX (компоненты, `*.async.tsx`) и стили `*.styles.ts`
-- `lib/` — утилиты, хуки, константы, локальные типы, схемы валидации форм (`*.rules.ts`); папку создаём, когда есть не-UI код
+## Архитектура
 
-Правила импортов (зависимости только вниз):
-
-- `core` — не импортирует из `app` и `modules`
-- `modules` — импортируют из `core` и public API других modules (`index.ts`); не из `app`
-- `app` — импортирует из `core` и `modules`; зависимости из `app` не уходят вниз в `modules` / `core`
-- `main.tsx` — импортирует только из `app`
-- Barrel (`index.ts`) — только у модулей (`modules/<name>/index.ts`); в `core` и `app` — прямые импорты из файлов
-
-Эти правила импортов проверяет ESLint (`eslint-plugin-boundaries` + `no-restricted-imports` в `eslint.config.js`).
-
-Страницы экспортируются лениво через `pages/.../ui/*.async.tsx` (`React.lazy`). Redux-модули подключаются через `redux-dynamic-modules`.
-
----
-
-## Кэширование
-
-JSON списков и деталок живёт в Redux 60 секунд (`isFresh` / `DEFAULT_STALE_TIME_MS` в `src/core/lib/cache/isFresh.ts`).
-
-- Саги не делают GET, пока данные свежие.
-- Список постов кэшируется **по страницам** (`listCacheByPage`): переход 1→2→1 не дергает API, пока TTL валиден.
-- Create / update / delete сущности сбрасывает **все** страницы списка (`fetchedAt = 0`) — следующий заход перезапросит.
-- Авторы и теги — один кэш списка, без пагинации.
-- Модули `post` / `author` / `tag` с `retained: true`: кэш не сбрасывается при переходах между разделами.
-- По изображениям работает HTTP-кэш браузера у CDN (`static-test...`).
-
----
-
-## Стили
-
-css-in-js на `antd-style`, без CSS Modules и глобальных css (кроме `antd/dist/reset.css`).
-
-- Стили компонента — в `Component.styles.ts` рядом с компонентом: `createStyles(({ token, css }) => ({ ... }))`
-- В компоненте: `const { styles } = useStyles();` и `className={styles.xxx}`
-- Значения — из Design Tokens (`token.colorBgContainer`, `token.margin`, ...), инлайновый `style={{ ... }}` не используем
-- Light / dark тема — `ConfigProvider` + `algorithm` в `app/styles/theme.ts`; `token` в стилях подхватывает тему автоматически
-
----
-
-## Формы и поля
-
-- Формы — Ant Design `Form` / `Form.useForm()` (без RHF/zod). Значения формы локально в antd; в Redux — submit/loading/ошибки сервера.
-- Валидация — фабрики в `src/core/lib/formRules/formRules.ts`; схемы фичи — в `features/<Feature>/lib/*.rules.ts`.
-- UI формы — в `features/<Feature>/ui/`; текстовые поля — самозакрывающийся `TextField` (`src/core/ui/TextField/TextField.tsx`), `type` по умолчанию `text`; числа — `NumberField` (`src/core/ui/NumberField/NumberField.tsx`).
-- Без `name` — controlled (`value`/`onChange`), например фильтры в Redux. Обязательны `testId` (`data-testid`) и `aria-label`, если нет видимого `label`.
-
----
-
-## API
-
-Базовый URL: `VITE_API_BASE_URL` (в dev обычно `/api`).
-
-Документация: [REST docs](http://rest-test.machineheads.ru/documentation/)
-
-Основные эндпоинты:
-
-- Auth: `POST /auth/token-generate`, `POST /auth/token-refresh`
-- Posts / Authors / Tags: `/manage/*` (CRUD)
-
-Токены хранятся в cookies (`js-cookie`). Access передаётся как `Bearer` в interceptor; при 401 выполняется single-flight refresh.
-
----
-
-## Демо-доступ (тестовый API)
-
-Для проверки логина:
-
-- E-mail: `test@test.ru`
-- Пароль: `khro2ij3n2730`
-
-Креды не хардкодить в коде приложения.
-
----
-
-## Auth
-
-- Логин: multipart `email` + `password` → access/refresh tokens
-- Refresh: multipart `refresh_token`
-- Logout: очистка cookies + редирект на `/login`
-- Guards: без сессии → login; на login с сессией → `/posts`
+Приложение разбито на слои `app`, `modules` и `core`. Слой `app` собирает
+providers, роутер, store и layouts. Вертикальные домены живут в `modules`:
+`auth`, `post`, `author` и `tag`. Общий код (API-клиент, UI, конфиг) лежит в
+`core`. Страницы подгружаются лениво (`React.lazy`), Redux-модули подключаются
+через `redux-dynamic-modules`.
