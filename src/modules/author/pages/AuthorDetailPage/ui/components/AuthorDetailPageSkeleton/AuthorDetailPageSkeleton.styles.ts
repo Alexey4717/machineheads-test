@@ -8,7 +8,7 @@ export const useStyles = createStyles(({ token, css }) => ({
   `,
   row: css`
     display: grid;
-    grid-template-columns: 140px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
     gap: ${token.margin}px;
     align-items: center;
     padding: ${token.padding}px ${token.paddingLG}px;
@@ -17,8 +17,5 @@ export const useStyles = createStyles(({ token, css }) => ({
     &:last-child {
       border-bottom: none;
     }
-  `,
-  label: css`
-    max-width: 100px;
   `,
 }));

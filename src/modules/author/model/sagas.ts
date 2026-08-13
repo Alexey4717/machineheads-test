@@ -1,5 +1,5 @@
 import { push } from 'connected-react-router';
-import { call, put, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 
 import { normalizeApiError } from '@/core/api/errorParsers';
 import { getPath } from '@/core/config/router/getPath';
@@ -8,6 +8,8 @@ import {
   appMessageError,
   appMessageSuccess,
 } from '@/core/lib/message/appMessage';
+import { parseReturnTo } from '@/core/lib/router/parseReturnTo';
+import { selectRouterSearch } from '@/core/lib/router/selectRouterSearch';
 
 import {
   addAuthor,
@@ -54,7 +56,11 @@ function* createSaga(
     const author: Author = yield call(addAuthor, action.payload);
     yield put(authorActions.createSuccess(author));
     yield call(appMessageSuccess, 'Автор создан');
-    yield put(push(getPath(PATHS.AUTHOR_DETAIL, { id: author.id })));
+    const search: string = yield select(selectRouterSearch);
+    const returnTo = parseReturnTo(search);
+    yield put(
+      push(returnTo ?? getPath(PATHS.AUTHOR_DETAIL, { id: author.id })),
+    );
   } catch (error) {
     yield put(authorActions.createFailure(normalizeApiError(error)));
     yield call(appMessageError, error);

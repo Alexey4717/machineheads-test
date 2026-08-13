@@ -6,19 +6,21 @@ import { Avatar, Descriptions } from 'antd';
 import { formatDate } from '@/core/lib/formatDate/formatDate';
 
 import { selectCurrentAuthor } from '../../../../../model/selectors';
+import { useStyles } from './AuthorDetailDescriptions.styles';
 
 /** Поля текущего автора. Сам сверяет id из URL с currentDetail. */
 export const AuthorDetailDescriptions = () => {
   const params = useParams<{ id: string }>();
   const authorId = Number(params.id);
   const author = useSelector(selectCurrentAuthor);
+  const { styles } = useStyles();
 
   if (!author || author.id !== authorId) {
     return null;
   }
 
   return (
-    <Descriptions column={1} bordered size="middle">
+    <Descriptions className={styles.root} column={1} bordered size="middle">
       <Descriptions.Item label="ID">{author.id}</Descriptions.Item>
       <Descriptions.Item label="Фамилия">{author.lastName}</Descriptions.Item>
       <Descriptions.Item label="Имя">{author.name}</Descriptions.Item>

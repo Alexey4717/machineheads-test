@@ -1,12 +1,13 @@
 import { push } from 'connected-react-router';
 import { expectSaga } from 'redux-saga-test-plan';
-import { call } from 'redux-saga-test-plan/matchers';
+import { call, select } from 'redux-saga-test-plan/matchers';
 import { throwError } from 'redux-saga-test-plan/providers';
 import { describe, it, vi } from 'vitest';
 
 import { getPath } from '@/core/config/router/getPath';
 import { PATHS } from '@/core/config/router/paths';
 import * as appMessage from '@/core/lib/message/appMessage';
+import { selectRouterSearch } from '@/core/lib/router/selectRouterSearch';
 
 import * as tagsApi from '../api/tagsApi';
 import { tagActions } from './actions';
@@ -80,9 +81,40 @@ describe('tagSaga', () => {
     const values = { name: 'Тег', code: 'tag', sort: 1 };
 
     await expectSaga(tagSaga)
-      .provide([[call.fn(tagsApi.addTag), tag]])
+      .provide([
+        [call.fn(tagsApi.addTag), tag],
+        [select.selector(selectRouterSearch), ''],
+      ])
       .put(tagActions.createSuccess(tag))
       .call(appMessage.appMessageSuccess, 'Тег создан')
+      .put(push(getPath(PATHS.TAG_DETAIL, { id: tag.id })))
+      .dispatch(tagActions.createRequest(values))
+      .silentRun();
+  });
+
+  it('create success: redirect на returnTo, если он валиден', async () => {
+    const values = { name: 'Тег', code: 'tag', sort: 1 };
+
+    await expectSaga(tagSaga)
+      .provide([
+        [call.fn(tagsApi.addTag), tag],
+        [select.selector(selectRouterSearch), '?returnTo=%2Fposts%2F5%2Fedit'],
+      ])
+      .put(tagActions.createSuccess(tag))
+      .call(appMessage.appMessageSuccess, 'Тег создан')
+      .put(push('/posts/5/edit'))
+      .dispatch(tagActions.createRequest(values))
+      .silentRun();
+  });
+
+  it('create success: игнорирует небезопасный returnTo', async () => {
+    const values = { name: 'Тег', code: 'tag', sort: 1 };
+
+    await expectSaga(tagSaga)
+      .provide([
+        [call.fn(tagsApi.addTag), tag],
+        [select.selector(selectRouterSearch), '?returnTo=//evil.example'],
+      ])
       .put(push(getPath(PATHS.TAG_DETAIL, { id: tag.id })))
       .dispatch(tagActions.createRequest(values))
       .silentRun();

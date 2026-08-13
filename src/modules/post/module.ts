@@ -1,7 +1,8 @@
 import type { ISagaModule } from 'redux-dynamic-modules-saga';
 
-import { postReducer, type PostState } from './model/reducer';
+import { postReducer } from './model/reducer';
 import { postSaga } from './model/sagas';
+import type { PostState } from './model/types';
 
 export function getPostModule(): ISagaModule<{ post: PostState }> {
   return {

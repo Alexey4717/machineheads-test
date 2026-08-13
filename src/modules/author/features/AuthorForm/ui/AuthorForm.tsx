@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Form } from 'antd';
 
 import { useAppDispatch } from '@/core/lib/hooks/useAppDispatch';
+import { ImageUploadField } from '@/core/ui/ImageUploadField/ImageUploadField';
 import { TextAreaField } from '@/core/ui/TextAreaField/TextAreaField';
 import { TextField } from '@/core/ui/TextField/TextField';
 
@@ -10,7 +11,6 @@ import { authorActions } from '../../../model/actions';
 import type { AuthorFormValues } from '../../../model/types';
 import { authorFormRules } from '../lib/AuthorForm.rules';
 import { useStyles } from './AuthorForm.styles';
-import { AuthorFormAvatarField } from './components/AuthorFormAvatarField/AuthorFormAvatarField';
 import { AuthorFormSubmitButton } from './components/AuthorFormSubmitButton/AuthorFormSubmitButton';
 import { AuthorFormSubmitError } from './components/AuthorFormSubmitError/AuthorFormSubmitError';
 
@@ -109,7 +109,13 @@ export const AuthorForm = ({
         placeholder="Полное описание"
       />
 
-      <AuthorFormAvatarField />
+      <ImageUploadField
+        name="avatar"
+        label="Аватар"
+        testId="author-avatar"
+        tip="JPG/PNG, один файл"
+        removeFlagName="removeAvatar"
+      />
 
       <AuthorFormSubmitButton mode={mode} />
     </Form>

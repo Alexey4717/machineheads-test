@@ -1,12 +1,13 @@
 import { push } from 'connected-react-router';
 import { expectSaga } from 'redux-saga-test-plan';
-import { call } from 'redux-saga-test-plan/matchers';
+import { call, select } from 'redux-saga-test-plan/matchers';
 import { throwError } from 'redux-saga-test-plan/providers';
 import { describe, it, vi } from 'vitest';
 
 import { getPath } from '@/core/config/router/getPath';
 import { PATHS } from '@/core/config/router/paths';
 import * as appMessage from '@/core/lib/message/appMessage';
+import { selectRouterSearch } from '@/core/lib/router/selectRouterSearch';
 
 import * as authorsApi from '../api/authorsApi';
 import { authorActions } from './actions';
@@ -90,9 +91,39 @@ describe('authorSaga', () => {
 
   it('create success: createSuccess + toast + redirect detail', async () => {
     await expectSaga(authorSaga)
-      .provide([[call.fn(authorsApi.addAuthor), author]])
+      .provide([
+        [call.fn(authorsApi.addAuthor), author],
+        [select.selector(selectRouterSearch), ''],
+      ])
       .put(authorActions.createSuccess(author))
       .call(appMessage.appMessageSuccess, 'Автор создан')
+      .put(push(getPath(PATHS.AUTHOR_DETAIL, { id: author.id })))
+      .dispatch(authorActions.createRequest(values))
+      .silentRun();
+  });
+
+  it('create success: redirect на returnTo, если он валиден', async () => {
+    await expectSaga(authorSaga)
+      .provide([
+        [call.fn(authorsApi.addAuthor), author],
+        [select.selector(selectRouterSearch), '?returnTo=%2Fposts%2Fnew'],
+      ])
+      .put(authorActions.createSuccess(author))
+      .call(appMessage.appMessageSuccess, 'Автор создан')
+      .put(push('/posts/new'))
+      .dispatch(authorActions.createRequest(values))
+      .silentRun();
+  });
+
+  it('create success: игнорирует небезопасный returnTo', async () => {
+    await expectSaga(authorSaga)
+      .provide([
+        [call.fn(authorsApi.addAuthor), author],
+        [
+          select.selector(selectRouterSearch),
+          '?returnTo=https%3A%2F%2Fevil.example',
+        ],
+      ])
       .put(push(getPath(PATHS.AUTHOR_DETAIL, { id: author.id })))
       .dispatch(authorActions.createRequest(values))
       .silentRun();

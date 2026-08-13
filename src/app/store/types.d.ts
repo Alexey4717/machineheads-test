@@ -3,11 +3,12 @@ import type { IModuleStore } from 'redux-dynamic-modules';
 
 import type { AuthState } from '../../modules/auth';
 import type { AuthorState } from '../../modules/author';
+import type { PostState } from '../../modules/post';
 import type { TagState } from '../../modules/tag';
 
 /**
  * Aggregate app state for statically known slices.
- * Dynamic modules (tag, author, and future post) are typed here once their
+ * Dynamic modules (tag, author, post) are typed here once their
  * public API exports a state type; at runtime a slice exists only while its
  * module is loaded via redux-dynamic-modules.
  *
@@ -20,6 +21,7 @@ declare global {
     auth: AuthState;
     tag: TagState;
     author: AuthorState;
+    post: PostState;
   };
 
   type AppStore = IModuleStore<RootState>;

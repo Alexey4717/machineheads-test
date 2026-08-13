@@ -26,14 +26,11 @@ vi.mock(
   }),
 );
 
-vi.mock(
-  './components/AuthorFormAvatarField/AuthorFormAvatarField.styles',
-  () => ({
-    useStyles: () => ({
-      styles: { upload: 'upload', tip: 'tip' },
-    }),
+vi.mock('@/core/ui/ImageUploadField/ImageUploadField.styles', () => ({
+  useStyles: () => ({
+    styles: { upload: 'upload', tip: 'tip' },
   }),
-);
+}));
 
 function renderAuthorForm(
   props: { mode: 'create' | 'edit'; authorId?: number } = { mode: 'create' },
