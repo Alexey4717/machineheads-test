@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { ConfigProvider, theme } from 'antd';
 import { describe, expect, it, vi } from 'vitest';
 
 import { componentRender } from '@/__test__/componentRender';
@@ -223,6 +224,34 @@ describe('ConfirmModalProvider', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
+  });
+
+  it('наследует токены тёмной темы от ConfigProvider', async () => {
+    const user = userEvent.setup();
+    const darkToken = theme.getDesignToken({ algorithm: theme.darkAlgorithm });
+
+    const TokenProbe = () => {
+      const { token } = theme.useToken();
+      return <span data-testid="modal-token-bg">{token.colorBgElevated}</span>;
+    };
+
+    componentRender(
+      <ConfigProvider
+        theme={{ algorithm: theme.darkAlgorithm, token: { motion: false } }}
+      >
+        <ConfirmModalProvider>
+          <ConfirmHarness
+            options={{ ...defaultOptions, content: <TokenProbe /> }}
+          />
+        </ConfirmModalProvider>
+      </ConfigProvider>,
+    );
+
+    await user.click(screen.getByTestId('confirmModal_button_open'));
+
+    expect(await screen.findByTestId('modal-token-bg')).toHaveTextContent(
+      darkToken.colorBgElevated,
+    );
   });
 });
 
